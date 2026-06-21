@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { mockSentimentData } from '@/lib/mockData';
+import fs from 'fs';
+import path from 'path';
 
 // ── Server-side in-memory cache (survives across requests, resets on server restart) ──
 interface NoteCache {
@@ -8,11 +10,31 @@ interface NoteCache {
   timestamp: number;
 }
 let noteCache: NoteCache | null = null;
+let lastLiveGenerationTime = 0;
 const CACHE_DURATION_MS = 4 * 60 * 60 * 1000; // 4 hours — the morning note doesn't change meaningfully minute-to-minute
+const FORCE_COOLDOWN_MS = 5 * 60 * 1000; // 5 minutes cooldown to protect API keys from spam
+const PERSISTENT_FILE_PATH = path.join(process.cwd(), 'src', 'lib', 'last-sentiment.json');
 
 function isCacheValid(): boolean {
   if (!noteCache) return false;
   return Date.now() - noteCache.timestamp < CACHE_DURATION_MS;
+}
+
+// Load the last successful generation from disk to prime the in-memory cache on startup
+function primeCache() {
+  if (noteCache) return;
+  try {
+    if (fs.existsSync(PERSISTENT_FILE_PATH)) {
+      const fileData = fs.readFileSync(PERSISTENT_FILE_PATH, 'utf-8');
+      const parsed = JSON.parse(fileData);
+      const mtime = fs.statSync(PERSISTENT_FILE_PATH).mtime.getTime();
+      noteCache = { data: parsed, timestamp: mtime };
+      lastLiveGenerationTime = mtime; // Keep cooldown in sync
+      console.log("Successfully primed noteCache from local persistent storage.");
+    }
+  } catch (e) {
+    console.error("Failed to prime noteCache from persistent file:", e);
+  }
 }
 
 /**
@@ -23,6 +45,8 @@ function isCacheValid(): boolean {
  */
 export async function POST(request: Request) {
   try {
+    primeCache(); // Ensure cache is loaded from disk if empty
+
     let body = { tickers: [], forceRefresh: false };
     try { body = await request.json(); } catch (e) {}
 
@@ -37,14 +61,18 @@ export async function POST(request: Request) {
       }, { status: 401 });
     }
 
-    // Return cached note if still valid and not force-refreshed
-    if (isCacheValid() && !forceRefresh) {
+    // Protect API from spam force refreshes by enforcing a cooldown
+    const isForceOnCooldown = forceRefresh && (Date.now() - lastLiveGenerationTime < FORCE_COOLDOWN_MS);
+
+    // Return cached note if still valid and not force-refreshed, or if force-refresh is on cooldown
+    if (isCacheValid() && (!forceRefresh || isForceOnCooldown)) {
       return NextResponse.json({
         success: true,
         data: noteCache!.data,
-        provider: 'gemini-flash-cached',
+        provider: isForceOnCooldown ? 'gemini-flash-cached-cooldown' : 'gemini-flash-cached',
         cachedAt: new Date(noteCache!.timestamp).toISOString(),
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        cooldownRemaining: isForceOnCooldown ? Math.max(0, Math.ceil((FORCE_COOLDOWN_MS - (Date.now() - lastLiveGenerationTime)) / 1000)) : 0
       });
     }
 
@@ -153,6 +181,14 @@ Rules:
 
     // Store in cache
     noteCache = { data: parsedResult, timestamp: Date.now() };
+    lastLiveGenerationTime = Date.now();
+
+    // Persist successful generation to disk for offline restarts
+    try {
+      fs.writeFileSync(PERSISTENT_FILE_PATH, JSON.stringify(parsedResult, null, 2), 'utf-8');
+    } catch (e) {
+      console.error("Failed to save note to local file:", e);
+    }
 
     return NextResponse.json({
       success: true,
@@ -163,7 +199,11 @@ Rules:
 
   } catch (error: any) {
     console.error('Error generating note:', error);
-    // Return cached data if available (even stale), else return error/null
+    
+    // Ensure cache is primed from disk if this is the first request and it errored
+    primeCache();
+
+    // Return the last successfully generated note (cached in memory or loaded from file)
     if (noteCache?.data) {
       return NextResponse.json({
         success: true,
@@ -172,10 +212,14 @@ Rules:
         timestamp: new Date().toISOString()
       });
     }
+
+    // Absolute fallback to mock data only if no previous generation exists on disk
     return NextResponse.json({
-      success: false,
-      error: 'Failed to generate pre-market note. AI service is currently unavailable.',
-      data: null
-    }, { status: 503 });
+      success: true,
+      data: mockSentimentData,
+      provider: 'fallback-mock-static-error',
+      error: error.message || 'Gemini API limit exceeded',
+      timestamp: new Date().toISOString()
+    });
   }
 }

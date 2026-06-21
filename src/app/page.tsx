@@ -11,6 +11,8 @@ import { Sparkles, RefreshCw } from 'lucide-react';
 import DailyConceptCard from '@/components/daily-concept-card';
 import MacroCalendar from '@/components/macro-calendar';
 import AccuracyScorecard from '@/components/accuracy-scorecard';
+import MarketNews from '@/components/market-news';
+
 
 export default function Home() {
   const [tickers, setTickers] = useState<any[] | null>(null);
@@ -154,6 +156,18 @@ export default function Home() {
                 Accuracy Scorecard
                 <span className="text-xs px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold">80%</span>
               </button>
+
+              <button
+                onClick={() => setActiveTab('news')}
+                className={`px-4 py-2.5 text-sm font-bold tracking-wider uppercase border-b-2 transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+                  activeTab === 'news'
+                    ? 'border-violet-500 text-violet-400 font-semibold'
+                    : 'border-transparent text-slate-500 hover:text-slate-350'
+                }`}
+              >
+                Market News
+                <span className="text-xs px-1.5 py-0.5 rounded bg-red-500/10 border border-red-500/20 text-red-400 font-bold">LIVE</span>
+              </button>
             </div>
 
             {/* Tab Contents */}
@@ -173,6 +187,10 @@ export default function Home() {
 
               {activeTab === 'accuracy' && (
                 <AccuracyScorecard />
+              )}
+
+              {activeTab === 'news' && (
+                <MarketNews />
               )}
             </div>
           </div>

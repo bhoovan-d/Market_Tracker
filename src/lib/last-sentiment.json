@@ -1,0 +1,40 @@
+{
+  "sentiment": "GAP_DOWN",
+  "gaugeValue": 35,
+  "predictedOpeningDiff": "-95 pts (Gap Down)",
+  "confidenceScore": 6,
+  "confidenceNote": "GIFT Nifty slides -0.42% overnight matching US tech profit booking; India VIX rises slightly to 14.1.",
+  "lastUpdated": "Today, 08:30 AM IST",
+  "bullets": [
+    {
+      "title": "US Tech Pullback",
+      "globalTrend": "US technology shares consolidates with Nasdaq falling 0.85% as investors lock in recent gains.",
+      "globalTrendSimple": "US tech stocks fell slightly last night as investors sold shares to secure their profits.",
+      "indianImpact": "Puts short-term downward pressure on local IT giants (TCS, Infosys) due to client demand exposure.",
+      "indianImpactSimple": "This is likely to cause share prices of TCS and Infosys to open lower this morning.",
+      "companiesAffected": [
+        {
+          "symbol": "INFY",
+          "name": "Infosys Ltd.",
+          "effect": "NEGATIVE",
+          "reason": "Tracking US ADR pullback in tech sector.",
+          "actionableGuidance": "Wait for Nifty support to stabilize near ₹1,480 before initiating buy orders."
+        }
+      ]
+    }
+  ],
+  "sectors": [
+    {
+      "name": "Information Technology",
+      "sentiment": "BEARISH",
+      "reason": "Weak US cues overnight will lead to profit-booking in IT stocks."
+    }
+  ],
+  "suggestedAction": {
+    "strategy": "Expect a soft opening below yesterday's close. Let the initial gap down settle before taking defensive longs.",
+    "strategySimple": "The market is expected to open lower. Do not buy immediately at 9:15 AM; wait for prices to stabilize.",
+    "sectorFocus": "Pharma and FMCG are expected to act as defensive sectors.",
+    "riskWarning": "Avoid aggressive long positions until support levels are defended.",
+    "riskWarningSimple": "Do not take big risks buying stocks today until we see if the market stops falling."
+  }
+}
