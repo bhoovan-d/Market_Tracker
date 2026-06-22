@@ -8,7 +8,6 @@ import OvernightTracker from '@/components/overnight-tracker';
 import MarketGrid from '@/components/market-grid';
 import DashboardFooter from '@/components/dashboard-footer';
 import { Sparkles, RefreshCw } from 'lucide-react';
-import DailyConceptCard from '@/components/daily-concept-card';
 import MacroCalendar from '@/components/macro-calendar';
 import AccuracyScorecard from '@/components/accuracy-scorecard';
 import MarketNews from '@/components/market-news';
@@ -17,9 +16,11 @@ import MarketNews from '@/components/market-news';
 export default function Home() {
   const [tickers, setTickers] = useState<any[] | null>(null);
   const [sentiment, setSentiment] = useState<any | null>(null);
+  const [historyData, setHistoryData] = useState<any[] | null>(null);
+  const [historySummary, setHistorySummary] = useState<any | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [refreshing, setRefreshing] = useState<boolean>(false);
-  const [activeTab, setActiveTab] = useState<string>('intel');
+  const [activeTab, setActiveTab] = useState<string>('calendar');
 
   const loadData = async (type: 'init' | 'poll' | 'force' = 'init') => {
     if (type === 'poll' || type === 'force') setRefreshing(true);
@@ -68,6 +69,16 @@ export default function Home() {
           setSentiment(null);
         }
       }
+
+      // 3. Fetch predictions history (both static and today's dynamic alignment)
+      const historyRes = await fetch('/api/predictions-history');
+      if (historyRes.ok) {
+        const historyJson = await historyRes.json();
+        if (historyJson.success) {
+          setHistoryData(historyJson.data);
+          setHistorySummary(historyJson.summary);
+        }
+      }
     } catch (e) {
       console.error('Failed to reload pre-market data:', e);
       if (type === 'init' || type === 'force') {
@@ -114,84 +125,134 @@ export default function Home() {
         </div>
 
         {/* Hero Section: Gauge & prediction details */}
-        <SentimentHero data={sentiment} loading={loading} />
+        {(() => {
+          const getLatestOutcomeRecord = () => {
+            if (!historyData || historyData.length === 0) return null;
+            
+            const now = new Date();
+            const istTime = new Date(now.getTime() + (5.5 * 60 - now.getTimezoneOffset()) * 60000);
+            const hours = istTime.getHours();
+            const minutes = istTime.getMinutes();
+            const timeInMinutes = hours * 60 + minutes;
+            const marketOpenTime = 9 * 60 + 15; // 9:15 AM
+            
+            const formatter = new Intl.DateTimeFormat('en-CA', {
+              timeZone: 'Asia/Kolkata',
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit'
+            });
+            const todayStr = formatter.format(istTime);
+
+            // If past 9:15 AM IST, show today's active prediction vs. live outcome
+            if (timeInMinutes >= marketOpenTime) {
+              const todayRecord = historyData.find(item => item.date === todayStr);
+              if (todayRecord) return todayRecord;
+            }
+            
+            // Otherwise, show the most recent completed trading session (yesterday's prediction vs. outcome)
+            const pastRecords = historyData.filter(item => item.date !== todayStr);
+            const resolvedRecord = pastRecords.find(item => item.accuracy !== 'PENDING');
+            if (resolvedRecord) return resolvedRecord;
+            
+            return historyData[0];
+          };
+
+          const latestOutcomeRecord = getLatestOutcomeRecord();
+          
+          const heroData = latestOutcomeRecord ? {
+            sentiment: latestOutcomeRecord.prediction.sentiment,
+            gaugeValue: latestOutcomeRecord.prediction.gaugeValue,
+            predictedOpeningDiff: latestOutcomeRecord.prediction.predictedOpeningDiff,
+            lastUpdated: latestOutcomeRecord.dayLabel,
+          } : null;
+
+          return (
+            <div className="space-y-4">
+              <div className="border-b border-slate-900 pb-2">
+                <h3 className="text-sm font-bold tracking-wider uppercase font-mono text-slate-400">
+                  Latest Session Performance & Review
+                </h3>
+              </div>
+              <SentimentHero 
+                data={heroData} 
+                actualResult={latestOutcomeRecord} 
+                loading={loading} 
+              />
+            </div>
+          );
+        })()}
+
+        {/* Section B: Pre-Market Intelligence Title */}
+        <div className="border-b border-slate-900 pb-2 pt-4">
+          <h3 className="text-sm font-bold tracking-wider uppercase font-mono text-slate-400">
+            Pre-Market Intelligence for {sentiment?.dayLabel || 'Upcoming Session'}
+          </h3>
+        </div>
 
         {/* Notes & Telemetry Row */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
           {/* Main Content Area (takes 2 cols on wide screens) */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Custom Tab Selector */}
-            <div className="flex border-b border-slate-900 pb-px gap-1 overflow-x-auto shrink-0 font-mono scrollbar-none">
-              <button
-                onClick={() => setActiveTab('intel')}
-                className={`px-4 py-2.5 text-sm font-bold tracking-wider uppercase border-b-2 transition-all cursor-pointer whitespace-nowrap ${
-                  activeTab === 'intel'
-                    ? 'border-violet-500 text-violet-400 font-semibold'
-                    : 'border-transparent text-slate-500 hover:text-slate-350'
-                }`}
-              >
-                Pre-Market Intel
-              </button>
+            {/* Primary Pre-Market Intel Section (Core Focus) */}
+            <MorningNote data={sentiment} loading={loading} />
+            <OvernightTracker tickers={tickers} loading={loading} />
 
-              <button
-                onClick={() => setActiveTab('calendar')}
-                className={`px-4 py-2.5 text-sm font-bold tracking-wider uppercase border-b-2 transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
-                  activeTab === 'calendar'
-                    ? 'border-violet-500 text-violet-400 font-semibold'
-                    : 'border-transparent text-slate-500 hover:text-slate-350'
-                }`}
-              >
-                Macro Calendar
-                <span className="text-xs px-1.5 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-400">6</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('accuracy')}
-                className={`px-4 py-2.5 text-sm font-bold tracking-wider uppercase border-b-2 transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
-                  activeTab === 'accuracy'
-                    ? 'border-violet-500 text-violet-400 font-semibold'
-                    : 'border-transparent text-slate-500 hover:text-slate-350'
-                }`}
-              >
-                Accuracy Scorecard
-                <span className="text-xs px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold">80%</span>
-              </button>
+            {/* Supporting Tools and Scorecards Tabs Section */}
+            <div className="pt-6 border-t border-slate-900 space-y-6">
+              <div className="flex border-b border-slate-900 pb-px gap-1 overflow-x-auto shrink-0 font-mono scrollbar-none">
+                <button
+                  onClick={() => setActiveTab('calendar')}
+                  className={`px-4 py-2.5 text-sm font-bold tracking-wider uppercase border-b-2 transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+                    activeTab === 'calendar'
+                      ? 'border-violet-500 text-violet-400 font-semibold'
+                      : 'border-transparent text-slate-500 hover:text-slate-350'
+                  }`}
+                >
+                  Macro Calendar
+                  <span className="text-xs px-1.5 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-400">6</span>
+                </button>
+                <button
+                  onClick={() => setActiveTab('accuracy')}
+                  className={`px-4 py-2.5 text-sm font-bold tracking-wider uppercase border-b-2 transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+                    activeTab === 'accuracy'
+                      ? 'border-violet-500 text-violet-400 font-semibold'
+                      : 'border-transparent text-slate-500 hover:text-slate-350'
+                  }`}
+                >
+                  Accuracy Scorecard
+                  <span className="text-xs px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold">
+                    {historySummary ? `${historySummary.pct}%` : '80%'}
+                  </span>
+                </button>
 
-              <button
-                onClick={() => setActiveTab('news')}
-                className={`px-4 py-2.5 text-sm font-bold tracking-wider uppercase border-b-2 transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
-                  activeTab === 'news'
-                    ? 'border-violet-500 text-violet-400 font-semibold'
-                    : 'border-transparent text-slate-500 hover:text-slate-350'
-                }`}
-              >
-                Market News
-                <span className="text-xs px-1.5 py-0.5 rounded bg-red-500/10 border border-red-500/20 text-red-400 font-bold">LIVE</span>
-              </button>
-            </div>
+                <button
+                  onClick={() => setActiveTab('news')}
+                  className={`px-4 py-2.5 text-sm font-bold tracking-wider uppercase border-b-2 transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+                    activeTab === 'news'
+                      ? 'border-violet-500 text-violet-400 font-semibold'
+                      : 'border-transparent text-slate-500 hover:text-slate-350'
+                  }`}
+                >
+                  Market News
+                  <span className="text-xs px-1.5 py-0.5 rounded bg-red-500/10 border border-red-500/20 text-red-400 font-bold">LIVE</span>
+                </button>
+              </div>
 
-            {/* Tab Contents */}
-            <div className="space-y-6">
-              {activeTab === 'intel' && (
-                <>
-                  <MorningNote data={sentiment} loading={loading} />
-                  <OvernightTracker tickers={tickers} loading={loading} />
-                </>
-              )}
+              <div className="space-y-6">
+                {activeTab === 'calendar' && (
+                  <MacroCalendar />
+                )}
 
+                {activeTab === 'accuracy' && (
+                  <AccuracyScorecard data={historyData} summary={historySummary} />
+                )}
 
-
-              {activeTab === 'calendar' && (
-                <MacroCalendar />
-              )}
-
-              {activeTab === 'accuracy' && (
-                <AccuracyScorecard />
-              )}
-
-              {activeTab === 'news' && (
-                <MarketNews />
-              )}
+                {activeTab === 'news' && (
+                  <MarketNews />
+                )}
+              </div>
             </div>
           </div>
 
@@ -205,28 +266,68 @@ export default function Home() {
                 </div>
 
                 <div className="space-y-3">
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-slate-400">Overnight US VIX (Volatility)</span>
-                    <span className="font-mono font-semibold text-emerald-400">12.45 (-4.2%)</span>
+                  <div className="flex justify-between items-center text-sm font-mono">
+                    <span className="text-slate-400">GIFT Nifty Futures</span>
+                    {(() => {
+                      const ticker = tickers?.find(t => t.id === 'gift-nifty');
+                      if (!ticker) return <span className="text-slate-650">Loading...</span>;
+                      const isUp = ticker.direction === 'UP';
+                      return (
+                        <span className={`font-semibold ${isUp ? 'text-emerald-400' : ticker.direction === 'DOWN' ? 'text-rose-400' : 'text-slate-400'}`}>
+                          {ticker.value} ({ticker.changePercent})
+                        </span>
+                      );
+                    })()}
                   </div>
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-slate-400">India VIX (Prev. Close)</span>
-                    <span className="font-mono font-semibold text-slate-300">13.12 (Flat)</span>
+                  <div className="flex justify-between items-center text-sm font-mono">
+                    <span className="text-slate-400">India VIX (Fear Gauge)</span>
+                    {(() => {
+                      const ticker = tickers?.find(t => t.id === 'india-vix');
+                      if (!ticker) return <span className="text-slate-650">Loading...</span>;
+                      const val = parseFloat(ticker.value) || 0;
+                      const isHigh = val > 16;
+                      return (
+                        <span className={`font-semibold ${isHigh ? 'text-rose-450' : 'text-emerald-400'}`}>
+                          {ticker.value} ({ticker.changePercent})
+                        </span>
+                      );
+                    })()}
                   </div>
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-slate-400">FII Net Flow (Yesterday)</span>
-                    <span className="font-mono font-semibold text-emerald-400">+₹1,432 Cr</span>
+                  <div className="flex justify-between items-center text-sm font-mono">
+                    <span className="text-slate-400">Option Put-Call Ratio</span>
+                    {sentiment?.pcr !== undefined ? (
+                      <span className="font-semibold text-violet-400">
+                        {sentiment.pcr} ({sentiment.pcrLabel?.split(' ')[0]})
+                      </span>
+                    ) : (
+                      <span className="text-slate-650">Loading...</span>
+                    )}
                   </div>
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-slate-400">DII Net Flow (Yesterday)</span>
-                    <span className="font-mono font-semibold text-rose-400">-₹512 Cr</span>
+                  <div className="flex justify-between items-center text-sm font-mono">
+                    <span className="text-slate-400">FII Net Flow</span>
+                    {sentiment?.fiiFlow !== undefined ? (
+                      <span className={`font-semibold ${sentiment.fiiFlow >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                        {sentiment.fiiFlow >= 0 ? '+' : ''}{sentiment.fiiFlow.toLocaleString('en-IN')} Cr
+                      </span>
+                    ) : (
+                      <span className="text-slate-650">Loading...</span>
+                    )}
+                  </div>
+                  <div className="flex justify-between items-center text-sm font-mono">
+                    <span className="text-slate-400">DII Net Flow</span>
+                    {sentiment?.diiFlow !== undefined ? (
+                      <span className={`font-semibold ${sentiment.diiFlow >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                        {sentiment.diiFlow >= 0 ? '+' : ''}{sentiment.diiFlow.toLocaleString('en-IN')} Cr
+                      </span>
+                    ) : (
+                      <span className="text-slate-650">Loading...</span>
+                    )}
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Daily Macro Concept check card */}
-            <DailyConceptCard />
+
           </div>
 
         </div>

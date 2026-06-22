@@ -4,8 +4,9 @@ import { TrendingUp, TrendingDown, Minus, Info } from 'lucide-react';
 import { useMode } from '@/context/ModeContext';
 
 interface SentimentHeroProps {
-  data?: typeof mockSentimentData | null;
+  data?: any;
   loading?: boolean;
+  actualResult?: any;
 }
 
 const sentimentConfigs: Record<SentimentType, {
@@ -64,7 +65,7 @@ const sentimentConfigs: Record<SentimentType, {
   },
 };
 
-export default function SentimentHero({ data, loading }: SentimentHeroProps) {
+export default function SentimentHero({ data, loading, actualResult }: SentimentHeroProps) {
   const { isSimple } = useMode();
 
   if (loading) {
@@ -100,11 +101,13 @@ export default function SentimentHero({ data, loading }: SentimentHeroProps) {
     );
   }
 
-  const config = sentimentConfigs[data.sentiment];
+  const config = sentimentConfigs[data.sentiment as SentimentType] || sentimentConfigs.NEUTRAL;
   const IconComponent = config.icon;
 
   // Gauge angle calculation (0 is -90deg, 100 is 90deg)
   const needleRotation = (data.gaugeValue / 100) * 180 - 90;
+
+  const isResolved = actualResult && actualResult.accuracy !== 'PENDING';
 
   return (
     <section className="relative overflow-hidden rounded-2xl border border-border bg-slate-950/40 p-6 sm:p-8 shadow-xl backdrop-blur-sm">
@@ -121,7 +124,15 @@ export default function SentimentHero({ data, loading }: SentimentHeroProps) {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-violet-500"></span>
             </span>
-            {isSimple ? "Nifty opening forecast for today (Market starts at 9:15 AM)" : "Predicted Nifty Opening (9:15 AM IST)"}
+            {isResolved ? (
+              isSimple 
+                ? `Review: Forecast vs. Actual outcome for ${actualResult.dayLabel}` 
+                : `Session Performance Review (${actualResult.dayLabel})`
+            ) : (
+              isSimple 
+                ? "Nifty opening forecast (Market starts at 9:15 AM)" 
+                : "Predicted Nifty Opening (9:15 AM IST)"
+            )}
           </div>
 
           <div className="space-y-1">
@@ -136,6 +147,113 @@ export default function SentimentHero({ data, loading }: SentimentHeroProps) {
           <p className="text-base text-slate-300 leading-relaxed max-w-lg mx-auto lg:mx-0">
             {isSimple ? config.descriptionSimple : config.description} {isSimple ? 'Checked against international market indicators, oil prices, and dollar trends before the Indian market opens.' : 'Checked against GIFT Nifty premium, global index closings, futures trading, bond yields, and commodity trends.'}
           </p>
+
+          {/* Actual Open Result Section */}
+          {actualResult && actualResult.accuracy !== 'PENDING' && (
+            <div className={`p-4 rounded-xl border backdrop-blur-md transition-all duration-300 max-w-lg mx-auto lg:mx-0 text-left ${
+              actualResult.accuracy === 'CORRECT'
+                ? 'bg-emerald-500/5 border-emerald-500/15'
+                : actualResult.accuracy === 'PARTIAL'
+                  ? 'bg-amber-500/5 border-amber-500/15'
+                  : 'bg-rose-500/5 border-rose-500/15'
+            }`}>
+              <div className="flex items-center justify-between mb-3 border-b border-slate-900 pb-2">
+                <div className="flex items-center gap-2">
+                  <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold tracking-wider uppercase border ${
+                    actualResult.accuracy === 'CORRECT'
+                      ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                      : actualResult.accuracy === 'PARTIAL'
+                        ? 'bg-amber-500/10 text-amber-450 border-amber-500/20'
+                        : 'bg-rose-500/10 text-rose-450 border-rose-500/20'
+                  }`}>
+                    Forecast {actualResult.accuracy}
+                  </span>
+                  <span className="text-[10px] font-mono text-slate-500">Market Outcome</span>
+                </div>
+                {actualResult.actual.niftyChangePoints !== undefined && (
+                  <span className={`text-[11px] font-mono font-bold flex items-center gap-0.5 ${
+                    actualResult.actual.direction === 'UP' 
+                      ? 'text-emerald-400' 
+                      : actualResult.actual.direction === 'DOWN' 
+                        ? 'text-rose-400' 
+                        : 'text-slate-400'
+                  }`}>
+                    Nifty {actualResult.actual.direction === 'UP' ? 'Closed Up' : actualResult.actual.direction === 'DOWN' ? 'Closed Down' : 'Flat'}
+                  </span>
+                )}
+              </div>
+              
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 font-mono text-xs mb-3">
+                <div>
+                  <span className="text-slate-500 block text-[9px] uppercase tracking-wider">Actual Open</span>
+                  <span className="font-extrabold text-slate-100 text-sm">
+                    {actualResult.actual.niftyOpen ? actualResult.actual.niftyOpen.toLocaleString('en-IN') : 'N/A'}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-slate-500 block text-[9px] uppercase tracking-wider">Opening Gap</span>
+                  {(() => {
+                    const prevClose = actualResult.actual.niftyClose - actualResult.actual.niftyChangePoints;
+                    const gap = actualResult.actual.niftyOpen - prevClose;
+                    return (
+                      <span className={`font-extrabold text-sm ${
+                        gap > 0 ? 'text-emerald-400' : gap < 0 ? 'text-rose-400' : 'text-slate-400'
+                      }`}>
+                        {gap > 0 ? '+' : ''}{gap.toFixed(2)}
+                      </span>
+                    );
+                  })()}
+                </div>
+                {actualResult.actual.niftyClose > 0 && (
+                  <>
+                    <div>
+                      <span className="text-slate-500 block text-[9px] uppercase tracking-wider">Actual Close</span>
+                      <span className="font-extrabold text-slate-100 text-sm">
+                        {actualResult.actual.niftyClose.toLocaleString('en-IN')}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-slate-500 block text-[9px] uppercase tracking-wider">Daily Change</span>
+                      <span className={`font-extrabold text-sm ${
+                        actualResult.actual.niftyChangePoints > 0 ? 'text-emerald-400' : actualResult.actual.niftyChangePoints < 0 ? 'text-rose-400' : 'text-slate-400'
+                      }`}>
+                        {actualResult.actual.niftyChangePoints > 0 ? '+' : ''}{actualResult.actual.niftyChangePoints.toFixed(1)} ({actualResult.actual.niftyChangePercent})
+                      </span>
+                    </div>
+                  </>
+                )}
+              </div>
+              
+              <div className="bg-slate-950/30 p-3 rounded-lg border border-slate-900/60 space-y-1.5 font-sans">
+                <span className="text-[10px] font-mono font-bold text-violet-400 uppercase tracking-wider block">
+                  {isSimple ? "Why did this happen?" : "Transmission & Alignment Analysis"}
+                </span>
+                <p className="text-xs text-slate-355 leading-relaxed italic">
+                  {isSimple ? actualResult.accuracyNoteSimple : actualResult.accuracyNote}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Actual Open Pending Section */}
+          {actualResult && actualResult.accuracy === 'PENDING' && (
+            <div className="p-4 rounded-xl border border-slate-900 bg-slate-950/20 max-w-lg mx-auto lg:mx-0 text-left">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-violet-500"></span>
+                </span>
+                <span className="text-[10px] font-mono font-bold tracking-wider uppercase text-violet-400">
+                  Awaiting Opening Bell
+                </span>
+              </div>
+              <p className="text-xs text-slate-400 leading-relaxed italic font-sans">
+                {isSimple 
+                  ? 'Waiting for Nifty 50 to open at 9:15 AM IST to compute the actual outcome and compare it with our prediction.'
+                  : 'Awaiting regular market opening bell to cross-reference Nifty 50 opening print with pre-market predictions.'}
+              </p>
+            </div>
+          )}
 
           <div className="flex items-center justify-center lg:justify-start gap-1.5 text-sm text-slate-400">
             <Info className="h-3.5 w-3.5" />

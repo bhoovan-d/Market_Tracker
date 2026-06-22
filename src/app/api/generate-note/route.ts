@@ -3,6 +3,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { mockSentimentData } from '@/lib/mockData';
 import fs from 'fs';
 import path from 'path';
+import { getTargetTradingDate, readDb, writeDb, calculatePivots, getQuantMetrics } from '@/lib/predictionsDb';
 
 // ── Server-side in-memory cache (survives across requests, resets on server restart) ──
 interface NoteCache {
@@ -15,8 +16,9 @@ const CACHE_DURATION_MS = 4 * 60 * 60 * 1000; // 4 hours — the morning note do
 const FORCE_COOLDOWN_MS = 5 * 60 * 1000; // 5 minutes cooldown to protect API keys from spam
 const PERSISTENT_FILE_PATH = path.join(process.cwd(), 'src', 'lib', 'last-sentiment.json');
 
-function isCacheValid(): boolean {
+function isCacheValid(targetDateStr: string): boolean {
   if (!noteCache) return false;
+  if (noteCache.data?.dateStr !== targetDateStr) return false;
   return Date.now() - noteCache.timestamp < CACHE_DURATION_MS;
 }
 
@@ -64,8 +66,10 @@ export async function POST(request: Request) {
     // Protect API from spam force refreshes by enforcing a cooldown
     const isForceOnCooldown = forceRefresh && (Date.now() - lastLiveGenerationTime < FORCE_COOLDOWN_MS);
 
+    const target = getTargetTradingDate();
+
     // Return cached note if still valid and not force-refreshed, or if force-refresh is on cooldown
-    if (isCacheValid() && (!forceRefresh || isForceOnCooldown)) {
+    if (isCacheValid(target.dateStr) && (!forceRefresh || isForceOnCooldown)) {
       return NextResponse.json({
         success: true,
         data: noteCache!.data,
@@ -178,6 +182,78 @@ Rules:
     const rawText = response.response.text();
     const cleanText = rawText.replace(/^\s*```json\s*/gi, '').replace(/\s*```\s*$/g, '').trim();
     const parsedResult = JSON.parse(cleanText);
+
+    // ── Get Target Date, Pivot Points and Option Chain Sentiment ──
+    const targetInfo = getTargetTradingDate();
+    
+    // Fetch Nifty 50 previous day stats to calculate Pivots
+    let prevHigh = 24168.05;
+    let prevLow = 24073.15;
+    let prevClose = 24013.10;
+    try {
+      const res = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/^NSEI?range=5d&interval=1d`);
+      if (res.ok) {
+        const json = await res.json();
+        const quotes = json?.chart?.result?.[0]?.indicators?.quote?.[0];
+        if (quotes) {
+          const closes = quotes.close || [];
+          const highs = quotes.high || [];
+          const lows = quotes.low || [];
+          const validIndices = closes
+            .map((c: any, idx: number) => typeof c === 'number' && !isNaN(c) && highs[idx] !== null ? idx : -1)
+            .filter((idx: number) => idx !== -1);
+          if (validIndices.length > 0) {
+            const lastIdx = validIndices[validIndices.length - 1];
+            prevClose = closes[lastIdx];
+            prevHigh = highs[lastIdx] || prevClose;
+            prevLow = lows[lastIdx] || prevClose;
+          }
+        }
+      }
+    } catch (err) {
+      console.error("Failed to fetch prev day levels:", err);
+    }
+
+    const pivots = calculatePivots(prevHigh, prevLow, prevClose);
+    const { pcr, pcrLabel, fiiFlow, diiFlow } = getQuantMetrics(parsedResult.sentiment, parsedResult.gaugeValue);
+
+    // Enrich the result object
+    parsedResult.dateStr = targetInfo.dateStr;
+    parsedResult.dayLabel = targetInfo.label;
+    parsedResult.lastUpdated = `Today, 08:30 AM IST`;
+    parsedResult.pivots = pivots;
+    parsedResult.pcr = pcr;
+    parsedResult.pcrLabel = pcrLabel;
+    parsedResult.fiiFlow = fiiFlow;
+    parsedResult.diiFlow = diiFlow;
+
+    // Save to the local database
+    try {
+      const db = readDb();
+      db[targetInfo.dateStr] = {
+        date: targetInfo.dateStr,
+        dayLabel: targetInfo.label,
+        predictionForDate: targetInfo.label,
+        sentiment: parsedResult.sentiment,
+        gaugeValue: parsedResult.gaugeValue,
+        predictedOpeningDiff: parsedResult.predictedOpeningDiff,
+        confidenceScore: parsedResult.confidenceScore,
+        confidenceNote: parsedResult.confidenceNote,
+        bullets: parsedResult.bullets,
+        sectors: parsedResult.sectors,
+        suggestedAction: parsedResult.suggestedAction,
+        actual: null,
+        accuracy: 'PENDING',
+        pivots,
+        pcr,
+        pcrLabel,
+        fiiFlow,
+        diiFlow
+      };
+      writeDb(db);
+    } catch (e) {
+      console.error("Failed to write to predictions db:", e);
+    }
 
     // Store in cache
     noteCache = { data: parsedResult, timestamp: Date.now() };

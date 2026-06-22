@@ -63,6 +63,13 @@ const accuracyMeta: Record<PredictionAccuracy, {
     border: 'border-rose-500/30',
     icon: XCircle,
   },
+  PENDING: {
+    label: 'Pending',
+    color: 'text-violet-400',
+    bg: 'bg-violet-500/10',
+    border: 'border-violet-500/30',
+    icon: AlertCircle,
+  },
 };
 
 function DirectionArrow({ direction, className = '' }: { direction: Direction; className?: string }) {
@@ -200,34 +207,56 @@ export default function PredictionCard({ record, index }: PredictionCardProps) {
             </div>
 
             {/* Actual result column */}
-            <div className={`rounded-xl border p-4 space-y-3 ${isPositiveActual ? 'border-emerald-500/15 bg-emerald-950/5' : 'border-rose-500/15 bg-rose-950/5'}`}>
-              <div className={`flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest font-mono ${isPositiveActual ? 'text-emerald-400' : 'text-rose-400'}`}>
-                <DirectionArrow direction={record.actual.direction} className="h-3.5 w-3.5" />
+            <div className={`rounded-xl border p-4 space-y-3 ${
+              record.accuracy === 'PENDING'
+                ? 'border-slate-800 bg-slate-900/10'
+                : isPositiveActual 
+                  ? 'border-emerald-500/15 bg-emerald-950/5' 
+                  : 'border-rose-500/15 bg-rose-950/5'
+            }`}>
+              <div className={`flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest font-mono ${
+                record.accuracy === 'PENDING'
+                  ? 'text-slate-400'
+                  : isPositiveActual 
+                    ? 'text-emerald-400' 
+                    : 'text-rose-400'
+              }`}>
+                <DirectionArrow direction={record.accuracy === 'PENDING' ? 'FLAT' : record.actual.direction} className="h-3.5 w-3.5" />
                 Actual Nifty 50 Movement
               </div>
-              <div className="space-y-2">
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-0.5">
-                    <span className="text-xs font-mono text-slate-500 uppercase tracking-wide block">Open</span>
-                    <span className="text-base font-bold font-mono text-slate-200">{record.actual.niftyOpen.toLocaleString('en-IN')}</span>
+              
+              {record.accuracy === 'PENDING' ? (
+                <div className="space-y-2 py-2">
+                  <span className="text-slate-550 block text-xs italic">Awaiting market opening bell...</span>
+                  <p className="text-xs text-slate-400 leading-relaxed font-sans">
+                    Once the market opens at 9:15 AM IST, live Nifty 50 outcomes will align here automatically.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-0.5">
+                      <span className="text-xs font-mono text-slate-500 uppercase tracking-wide block">Open</span>
+                      <span className="text-base font-bold font-mono text-slate-200">{record.actual.niftyOpen.toLocaleString('en-IN')}</span>
+                    </div>
+                    <div className="space-y-0.5">
+                      <span className="text-xs font-mono text-slate-500 uppercase tracking-wide block">Close</span>
+                      <span className="text-base font-bold font-mono text-slate-200">{record.actual.niftyClose.toLocaleString('en-IN')}</span>
+                    </div>
                   </div>
-                  <div className="space-y-0.5">
-                    <span className="text-xs font-mono text-slate-500 uppercase tracking-wide block">Close</span>
-                    <span className="text-base font-bold font-mono text-slate-200">{record.actual.niftyClose.toLocaleString('en-IN')}</span>
+                  <div className="flex items-center gap-2">
+                    <span className={`text-3xl font-extrabold font-mono ${actualChangeColor}`}>
+                      {actualChangePts} pts
+                    </span>
+                    <span className={`text-base font-bold font-mono px-2 py-0.5 rounded ${acc.bg} ${actualChangeColor}`}>
+                      {record.actual.niftyChangePercent}
+                    </span>
+                  </div>
+                  <div className="text-sm text-slate-300 leading-relaxed font-sans">
+                    <JargonWrapper text={isSimple ? (record.actual.summarySimple || record.actual.summary) : record.actual.summary} />
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className={`text-3xl font-extrabold font-mono ${actualChangeColor}`}>
-                    {actualChangePts} pts
-                  </span>
-                  <span className={`text-base font-bold font-mono px-2 py-0.5 rounded ${acc.bg} ${actualChangeColor}`}>
-                    {record.actual.niftyChangePercent}
-                  </span>
-                </div>
-                <div className="text-sm text-slate-300 leading-relaxed font-sans">
-                  <JargonWrapper text={isSimple ? (record.actual.summarySimple || record.actual.summary) : record.actual.summary} />
-                </div>
-              </div>
+              )}
             </div>
           </section>
 

@@ -5,12 +5,19 @@ import { historicalPredictions, getAccuracySummary } from '@/lib/historyData';
 import { CheckCircle2, AlertCircle, XCircle, TrendingUp, BarChart3, HelpCircle, ArrowUpRight, ArrowDownRight, Minus } from 'lucide-react';
 import { useMode } from '@/context/ModeContext';
 
-export default function AccuracyScorecard() {
+interface AccuracyScorecardProps {
+  data?: any[] | null;
+  summary?: any | null;
+}
+
+export default function AccuracyScorecard({ data, summary }: AccuracyScorecardProps) {
   const { isSimple } = useMode();
-  const summary = getAccuracySummary(historicalPredictions);
+  
+  const sourcePredictions = data || historicalPredictions;
+  const activeSummary = summary || getAccuracySummary(historicalPredictions);
 
   // Sort newest first
-  const sorted = [...historicalPredictions].sort(
+  const sorted = [...sourcePredictions].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 
@@ -30,7 +37,7 @@ export default function AccuracyScorecard() {
         </div>
         
         <div className="flex items-center gap-1 bg-slate-900/80 px-2 py-0.5 rounded border border-slate-800 text-[9px] font-mono text-emerald-450 font-bold">
-          <span>{summary.pct}% Accuracy</span>
+          <span>{activeSummary.pct}% Accuracy</span>
         </div>
       </div>
 
@@ -39,21 +46,21 @@ export default function AccuracyScorecard() {
         <div className="flex items-center gap-3 p-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5">
           <CheckCircle2 className="h-7 w-7 text-emerald-400 shrink-0" />
           <div>
-            <span className="text-2xl font-extrabold text-emerald-400">{summary.correct}</span>
+            <span className="text-2xl font-extrabold text-emerald-400">{activeSummary.correct}</span>
             <span className="text-[9px] text-slate-500 block uppercase tracking-wider font-semibold">Correct Cues</span>
           </div>
         </div>
         <div className="flex items-center gap-3 p-4 rounded-xl border border-amber-500/20 bg-amber-500/5">
           <AlertCircle className="h-7 w-7 text-amber-400 shrink-0" />
           <div>
-            <span className="text-2xl font-extrabold text-amber-400">{summary.partial}</span>
+            <span className="text-2xl font-extrabold text-amber-400">{activeSummary.partial}</span>
             <span className="text-[9px] text-slate-500 block uppercase tracking-wider font-semibold">Partial (Cautious)</span>
           </div>
         </div>
         <div className="flex items-center gap-3 p-4 rounded-xl border border-rose-500/20 bg-rose-500/5">
           <XCircle className="h-7 w-7 text-rose-400 shrink-0" />
           <div>
-            <span className="text-2xl font-extrabold text-rose-400">{summary.missed}</span>
+            <span className="text-2xl font-extrabold text-rose-400">{activeSummary.missed}</span>
             <span className="text-[9px] text-slate-500 block uppercase tracking-wider font-semibold">Missed Cues</span>
           </div>
         </div>
@@ -69,6 +76,7 @@ export default function AccuracyScorecard() {
           {sorted.map((record) => {
             const isCorrect = record.accuracy === 'CORRECT';
             const isPartial = record.accuracy === 'PARTIAL';
+            const isPending = record.accuracy === 'PENDING';
             const predictionLabel = record.prediction.predictedOpeningDiff.split('(')[0].trim();
             const direction = record.actual.direction;
             
@@ -84,11 +92,13 @@ export default function AccuracyScorecard() {
                   
                   {/* Status Badge */}
                   <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded font-mono text-[9px] font-bold ${
-                    isCorrect 
-                      ? 'bg-emerald-500/10 text-emerald-450 border border-emerald-500/15'
-                      : isPartial 
-                        ? 'bg-amber-500/10 text-amber-450 border border-amber-500/15'
-                        : 'bg-rose-500/10 text-rose-450 border border-rose-500/15'
+                    isPending
+                      ? 'bg-violet-500/10 text-violet-400 border border-violet-500/15'
+                      : isCorrect 
+                        ? 'bg-emerald-500/10 text-emerald-450 border border-emerald-500/15'
+                        : isPartial 
+                          ? 'bg-amber-500/10 text-amber-450 border border-amber-500/15'
+                          : 'bg-rose-500/10 text-rose-450 border border-rose-500/15'
                   }`}>
                     {record.accuracy}
                   </span>
@@ -102,18 +112,22 @@ export default function AccuracyScorecard() {
 
                   <div className="flex items-center gap-1.5">
                     <span className="text-slate-500">Actual:</span>
-                    <span className={`font-semibold flex items-center gap-0.5 ${
-                      direction === 'UP' 
-                        ? 'text-emerald-450' 
-                        : direction === 'DOWN' 
-                          ? 'text-rose-450' 
-                          : 'text-slate-400'
-                    }`}>
-                      {direction === 'UP' && <ArrowUpRight className="h-3 w-3" />}
-                      {direction === 'DOWN' && <ArrowDownRight className="h-3 w-3" />}
-                      {direction === 'FLAT' && <Minus className="h-3 w-3" />}
-                      {record.actual.niftyChangePoints > 0 ? `+${record.actual.niftyChangePoints}` : record.actual.niftyChangePoints} pts
-                    </span>
+                    {isPending ? (
+                      <span className="text-slate-500 italic">Awaiting Open</span>
+                    ) : (
+                      <span className={`font-semibold flex items-center gap-0.5 ${
+                        direction === 'UP' 
+                          ? 'text-emerald-405' 
+                          : direction === 'DOWN' 
+                            ? 'text-rose-405' 
+                            : 'text-slate-400'
+                      }`}>
+                        {direction === 'UP' && <ArrowUpRight className="h-3 w-3" />}
+                        {direction === 'DOWN' && <ArrowDownRight className="h-3 w-3" />}
+                        {direction === 'FLAT' && <Minus className="h-3 w-3" />}
+                        {record.actual.niftyChangePoints > 0 ? `+${record.actual.niftyChangePoints}` : record.actual.niftyChangePoints} pts
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>

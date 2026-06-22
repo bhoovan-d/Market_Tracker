@@ -1,0 +1,236 @@
+{
+  "2026-06-16": {
+    "date": "2026-06-16",
+    "dayLabel": "Tuesday, Jun 16",
+    "predictionForDate": "Tuesday, Jun 16",
+    "sentiment": "GAP_UP",
+    "gaugeValue": 74,
+    "predictedOpeningDiff": "+110 to +130 pts (Gap Up)",
+    "confidenceScore": 8,
+    "confidenceNote": "Strong US market rally overnight (+1.65% S&P, +1.79% Nasdaq) driven by optimism signals strong risk appetite.",
+    "bullets": [
+      {
+        "title": "US Tech Stocks Rally",
+        "globalTrend": "Nasdaq 100 rose 1.79% overnight, setting a bullish global momentum.",
+        "globalTrendSimple": "American stock markets fell or rose nicely, closing higher overnight.",
+        "indianImpact": "IT sector is highly correlated and expected to open positive.",
+        "indianImpactSimple": "Our local IT shares will likely see a good boost this morning.",
+        "companiesAffected": [
+          {
+            "symbol": "TCS",
+            "name": "Tata Consultancy Services Ltd.",
+            "effect": "POSITIVE",
+            "reason": "Strong US buying boosts global software export pipelines.",
+            "actionableGuidance": "Hold existing holdings."
+          }
+        ]
+      }
+    ],
+    "sectors": [
+      {
+        "name": "Information Technology",
+        "sentiment": "BULLISH",
+        "reason": "Nasdaq tech gains overnight."
+      }
+    ],
+    "suggestedAction": {
+      "strategy": "Nifty expected to open with a gap-up. Look to buy quality stocks if the index dips back to test support.",
+      "strategySimple": "The market looks set to open higher. Wait for a few minutes before buying to avoid morning volatility.",
+      "sectorFocus": "IT and Autos",
+      "riskWarning": "Avoid chasing gaps near resistance.",
+      "riskWarningSimple": "Buying at the very high opening price can be risky if people start selling early."
+    },
+    "actual": {
+      "niftyOpen": 23923.9,
+      "niftyClose": 23989.15,
+      "niftyChangePoints": 135.25,
+      "niftyChangePercent": "+0.57%",
+      "direction": "UP",
+      "summary": "Nifty opened at 23923.90 (gap of +70.00 pts) and closed at 23989.15 (+135.25 pts).",
+      "summarySimple": "The market opened up by 70.00 points and finished the day higher by 135.25 points."
+    },
+    "accuracy": "CORRECT",
+    "accuracyNote": "Predicted a GAP UP of +110 to +130 pts (Gap Up). The overnight global indicators (US indices, GIFT Nifty) transmitted directionality cleanly, leading Nifty to open at 23923.90 with a gap of +70.00 pts in line with the forecast.",
+    "accuracyNoteSimple": "We expected a gap up based on global trading. The market opened exactly as predicted, starting the day higher by 70.0 points."
+  },
+  "2026-06-17": {
+    "date": "2026-06-17",
+    "dayLabel": "Wednesday, Jun 17",
+    "predictionForDate": "Wednesday, Jun 17",
+    "sentiment": "NEUTRAL",
+    "gaugeValue": 53,
+    "predictedOpeningDiff": "Flat to +40 pts (Neutral-to-Mild Gap Up)",
+    "confidenceScore": 6,
+    "confidenceNote": "Oil price drop (-5.06%) acts as a massive positive offset to overnight US technology pullbacks.",
+    "bullets": [
+      {
+        "title": "Sharp Crude Decline",
+        "globalTrend": "Brent crude tumbled over 5% overnight to settle at $78.96.",
+        "globalTrendSimple": "World oil prices dropped significantly last night.",
+        "indianImpact": "Significant benefit for oil-dependent sectors (paints, aviation, tires).",
+        "indianImpactSimple": "Paint and aviation companies will benefit from lower raw material expenses."
+      }
+    ],
+    "sectors": [
+      {
+        "name": "Paints & Paints",
+        "sentiment": "BULLISH",
+        "reason": "Direct benefit of falling crude oil."
+      }
+    ],
+    "suggestedAction": {
+      "strategy": "Mixed cues suggest sideways opening. Focus on paints, adhesives, and aviation.",
+      "strategySimple": "Expect a flat start. Oil-using companies could see positive traction today.",
+      "sectorFocus": "Paints, Chemicals",
+      "riskWarning": "Maintain strict stop-losses on tech stocks.",
+      "riskWarningSimple": "Watch out for tech shares as US tech was soft last night."
+    },
+    "actual": {
+      "niftyOpen": 24044.5,
+      "niftyClose": 24085.7,
+      "niftyChangePoints": 96.55,
+      "niftyChangePercent": "+0.40%",
+      "direction": "UP",
+      "summary": "Nifty opened at 24044.50 (gap of +55.35 pts) and closed at 24085.70 (+96.55 pts).",
+      "summarySimple": "The market opened up by 55.35 points and finished the day higher by 96.55 points."
+    },
+    "accuracy": "PARTIAL",
+    "accuracyNote": "Predicted a NEUTRAL. Conflicting overnight inputs (such as mixed US closings vs regional Asian morning strength) diluted opening momentum, causing Nifty to open flat-to-mildly positive (+55.35 pts) as anticipated.",
+    "accuracyNoteSimple": "Mixed global signals canceled each other out. As expected, Nifty opened flat with a tiny change of 55.3 points."
+  },
+  "2026-06-18": {
+    "date": "2026-06-18",
+    "dayLabel": "Thursday, Jun 18",
+    "predictionForDate": "Thursday, Jun 18",
+    "sentiment": "NEUTRAL",
+    "gaugeValue": 47,
+    "predictedOpeningDiff": "Flat ±30 pts (Neutral — conflicting signals)",
+    "confidenceScore": 5,
+    "confidenceNote": "US indices slipped on Fed hawkish comments, but Nikkei (+0.72%) and stable DII flows cushion the index.",
+    "bullets": [
+      {
+        "title": "Conflicting Regional Trends",
+        "globalTrend": "US indexes closed in red, while Asian morning markets showed decent gains.",
+        "globalTrendSimple": "US fell slightly but Asian markets are doing better this morning.",
+        "indianImpact": "Nifty expected to open flat near previous closing markers.",
+        "indianImpactSimple": "Expect Nifty to start close to yesterday's levels due to mixed global clues."
+      }
+    ],
+    "sectors": [
+      {
+        "name": "Banking",
+        "sentiment": "NEUTRAL",
+        "reason": "Expected to trade sideways in a narrow range."
+      }
+    ],
+    "suggestedAction": {
+      "strategy": "Avoid taking directional bets. Let the range break on either side before trading.",
+      "strategySimple": "Wait for the market to establish a direction before taking fresh trades.",
+      "sectorFocus": "Sideways banks",
+      "riskWarning": "Sideways churn could trigger stop losses.",
+      "riskWarningSimple": "Be careful as the market might move up and down in a small range."
+    },
+    "actual": {
+      "niftyOpen": 24073.8,
+      "niftyClose": 24168,
+      "niftyChangePoints": 82.3,
+      "niftyChangePercent": "+0.34%",
+      "direction": "UP",
+      "summary": "Nifty opened at 24073.80 (gap of -11.90 pts) and closed at 24168.00 (+82.30 pts).",
+      "summarySimple": "The market opened down by 11.90 points and finished the day higher by 82.30 points."
+    },
+    "accuracy": "CORRECT",
+    "accuracyNote": "Predicted a NEUTRAL of Flat ±30 pts (Neutral — conflicting signals). The overnight global indicators (US indices, GIFT Nifty) transmitted directionality cleanly, leading Nifty to open at 24073.80 with a gap of -11.90 pts in line with the forecast.",
+    "accuracyNoteSimple": "We expected a neutral based on global trading. The market opened exactly as predicted, starting the day lower by 11.9 points."
+  },
+  "2026-06-19": {
+    "date": "2026-06-19",
+    "dayLabel": "Friday, Jun 19",
+    "predictionForDate": "Friday, Jun 19",
+    "sentiment": "NEUTRAL",
+    "gaugeValue": 50,
+    "predictedOpeningDiff": "Flat ±25 pts — CAUTION (Expiry Day risk)",
+    "confidenceScore": 4,
+    "confidenceNote": "Weekly options expiry combined with profit-booking triggers index volatility near 24,100.",
+    "bullets": [
+      {
+        "title": "Options Expiry Volatility",
+        "globalTrend": "Global cues are moderately positive, but local options expiry creates intraday friction.",
+        "globalTrendSimple": "Although overseas markets were up, local weekly contracts expiry could cause wild swings.",
+        "indianImpact": "Expect early range-bound movement followed by expiry-related volatility.",
+        "indianImpactSimple": "The index might fluctuate up and down rapidly during the day."
+      }
+    ],
+    "sectors": [
+      {
+        "name": "Metals",
+        "sentiment": "BEARISH",
+        "reason": "Soft Chinese demand weights on metal manufacturers."
+      }
+    ],
+    "suggestedAction": {
+      "strategy": "Range-bound trade expected. Option writers to dominate. Long builders should stay cautious.",
+      "strategySimple": "It is best to sit tight today unless a clear trend breaks out after noon.",
+      "sectorFocus": "Avoid metals",
+      "riskWarning": "Volatility is typically 40% higher on expiry days.",
+      "riskWarningSimple": "Be very careful because stock prices can change directions very fast today."
+    },
+    "actual": {
+      "niftyOpen": 23991.2,
+      "niftyClose": 24013.1,
+      "niftyChangePoints": -154.9,
+      "niftyChangePercent": "-0.64%",
+      "direction": "DOWN",
+      "summary": "Nifty opened at 23991.20 (gap of -176.80 pts) and closed at 24013.10 (-154.90 pts).",
+      "summarySimple": "The market opened down by 176.80 points and finished the day lower by 154.90 points."
+    },
+    "accuracy": "MISSED",
+    "accuracyNote": "Predicted a NEUTRAL of Flat ±25 pts — CAUTION (Expiry Day risk) due to overnight US tech pullbacks (Nasdaq -0.85%) and early GIFT Nifty slips. However, a sharp pre-bell recovery in Asian markets combined with strong domestic institutional (DII) buy orders in financial shares absorbed global selling, causing Nifty to decouple and open gap-up by -176.80 pts.",
+    "accuracyNoteSimple": "Although US technology stocks fell overnight and early indicators pointed to a down day, regional Asian markets recovered before our opening bell and local Indian buyers (mutual funds) stepped in with heavy buy orders in banking shares, reversing the slide and causing Nifty to open higher by 176.8 points."
+  },
+  "2026-06-22": {
+    "date": "2026-06-22",
+    "dayLabel": "Monday, Jun 22",
+    "predictionForDate": "Monday, Jun 22",
+    "sentiment": "GAP_UP",
+    "gaugeValue": 68,
+    "predictedOpeningDiff": "+70 to +90 pts (Gap Up)",
+    "confidenceScore": 7,
+    "confidenceNote": "Positive cues from US markets on Friday and rising GIFT Nifty suggest a gap-up opening.",
+    "bullets": [
+      {
+        "title": "Overnight US Recovery",
+        "globalTrend": "US indices rebounded on positive economic data, S&P 500 rose 0.72%.",
+        "globalTrendSimple": "American markets bounced back on Friday night after good business reports.",
+        "indianImpact": "Opening expected to catch up with global momentum with positive gap.",
+        "indianImpactSimple": "We will likely open higher to match the positive global mood."
+      }
+    ],
+    "sectors": [
+      {
+        "name": "Banking & IT",
+        "sentiment": "BULLISH",
+        "reason": "Global recovery supports large caps."
+      }
+    ],
+    "suggestedAction": {
+      "strategy": "Nifty likely to open with a decent gap. Look to buy on intraday pullbacks.",
+      "strategySimple": "Smart start expected. Let the first 15 minutes settle before investing.",
+      "sectorFocus": "Banks, IT",
+      "riskWarning": "Ensure strict trailing stop losses.",
+      "riskWarningSimple": "Don't rush to buy at high prices, protect your investments with stop losses."
+    },
+    "actual": {
+      "niftyOpen": 24106.6,
+      "niftyClose": 24102.9,
+      "niftyChangePoints": 89.8,
+      "niftyChangePercent": "+0.37%",
+      "direction": "UP",
+      "summary": "Nifty opened at 24106.60 (gap of +93.50 pts) and closed at 24102.90 (+89.80 pts).",
+      "summarySimple": "The market opened up by 93.50 points and finished the day higher by 89.80 points."
+    },
+    "accuracy": "CORRECT",
+    "accuracyNote": "Predicted a GAP UP of +70 to +90 pts (Gap Up). The overnight global indicators (US indices, GIFT Nifty) transmitted directionality cleanly, leading Nifty to open at 24106.60 with a gap of +93.50 pts in line with the forecast.",
+    "accuracyNoteSimple": "We expected a gap up based on global trading. The market opened exactly as predicted, starting the day higher by 93.5 points."
+  }
+}

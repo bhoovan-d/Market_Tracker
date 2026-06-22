@@ -5,7 +5,7 @@ import { useMode } from '@/context/ModeContext';
 import JargonWrapper from '@/components/jargon-wrapper';
 
 interface MorningNoteProps {
-  data: typeof mockSentimentData | null;
+  data: any;
   loading?: boolean;
 }
 
@@ -98,9 +98,135 @@ export default function MorningNote({ data, loading }: MorningNoteProps) {
         </div>
       )}
 
+      {/* Quantitative Trading Levels */}
+      {data.pivots && (
+        <div className="space-y-4 pt-2">
+          <div className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-500/10 border border-violet-500/20 text-violet-400">
+              <Sparkles className="h-4.5 w-4.5" />
+            </div>
+            <h3 className="text-base font-bold uppercase tracking-wider text-slate-300 font-mono">
+              {isSimple ? "Key Numbers to Watch Today" : "Quantitative Trading Levels"}
+            </h3>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Column 1: Pivot levels */}
+            <div className="p-4 rounded-xl border border-slate-900 bg-slate-950/20 space-y-3">
+              <span className="text-xs font-bold text-slate-405 uppercase tracking-wider font-mono block">
+                {isSimple ? "Support & Resistance" : "Classic Pivot Points"}
+              </span>
+              <div className="space-y-1 font-mono text-xs">
+                <div className="flex justify-between items-center text-rose-450">
+                  <span>R3 (Resistance 3)</span>
+                  <span className="font-bold">{data.pivots.r3}</span>
+                </div>
+                <div className="flex justify-between items-center text-rose-450">
+                  <span>R2 (Resistance 2)</span>
+                  <span className="font-bold">{data.pivots.r2}</span>
+                </div>
+                <div className="flex justify-between items-center text-rose-500">
+                  <span>R1 (Resistance 1)</span>
+                  <span className="font-bold">{data.pivots.r1}</span>
+                </div>
+                <div className="flex justify-between items-center text-violet-400 bg-slate-900/50 py-0.5 px-1 rounded">
+                  <span>P (Pivot Point)</span>
+                  <span className="font-extrabold">{data.pivots.pivot}</span>
+                </div>
+                <div className="flex justify-between items-center text-emerald-500">
+                  <span>S1 (Support 1)</span>
+                  <span className="font-bold">{data.pivots.s1}</span>
+                </div>
+                <div className="flex justify-between items-center text-emerald-455">
+                  <span>S2 (Support 2)</span>
+                  <span className="font-bold">{data.pivots.s2}</span>
+                </div>
+                <div className="flex justify-between items-center text-emerald-450">
+                  <span>S3 (Support 3)</span>
+                  <span className="font-bold">{data.pivots.s3}</span>
+                </div>
+              </div>
+              <p className="text-[11px] text-slate-450 leading-relaxed pt-1 font-sans italic border-t border-slate-900/60">
+                {isSimple 
+                  ? "Think of Pivot (P) as the balance level. S levels are safety nets where falling shares usually find support and bounce. R levels are ceilings where rising shares face selling pressure."
+                  : "Classic Pivot levels computed from yesterday's High, Low, and Close. R1-R3 indicate upward friction levels, while S1-S3 define potential trend reversal supports."}
+              </p>
+            </div>
+
+            {/* Column 2: Option Chain PCR */}
+            <div className="p-4 rounded-xl border border-slate-900 bg-slate-950/20 flex flex-col justify-between gap-3">
+              <div className="space-y-2">
+                <span className="text-xs font-bold text-slate-405 uppercase tracking-wider font-mono block">
+                  {isSimple ? "Trader Sentiment (Options)" : "Option Put-Call Ratio (PCR)"}
+                </span>
+                
+                <div className="space-y-1 mt-2">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl font-extrabold font-mono text-violet-400">{data.pcr}</span>
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-semibold border ${
+                      data.pcrLabel?.includes('Bearish')
+                        ? 'text-rose-400 bg-rose-500/10 border-rose-500/20'
+                        : data.pcrLabel?.includes('Bullish')
+                          ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20'
+                          : 'text-slate-400 bg-slate-500/10 border-slate-500/20'
+                    }`}>
+                      {data.pcrLabel}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              
+              <p className="text-[11px] text-slate-450 leading-relaxed font-sans italic border-t border-slate-900/60 pt-2">
+                {isSimple
+                  ? `For every 100 people betting on a fall, there are ${Math.round(data.pcr * 100)} people betting on a rise. Current ratio indicates a ${data.pcrLabel?.toLowerCase()} mindset among traders.`
+                  : `Measures total put volume relative to call volume. A PCR of ${data.pcr} indicates options traders are building ${data.pcrLabel?.toLowerCase()} sentiment, which impacts derivative expiry ranges.`}
+              </p>
+            </div>
+
+            {/* Column 3: Institutional Flows */}
+            <div className="p-4 rounded-xl border border-slate-900 bg-slate-950/20 flex flex-col justify-between gap-3">
+              <div className="space-y-2">
+                <span className="text-xs font-bold text-slate-405 uppercase tracking-wider font-mono block">
+                  {isSimple ? "Big Investor Activity" : "Institutional Net Flows"}
+                </span>
+                
+                <div className="space-y-2.5 mt-2 font-mono text-xs">
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400">Foreign Funds (FII)</span>
+                    <span className={`font-bold px-2 py-0.5 rounded ${
+                      data.fiiFlow >= 0 
+                        ? 'text-emerald-400 bg-emerald-500/10' 
+                        : 'text-rose-400 bg-rose-500/10'
+                    }`}>
+                      {data.fiiFlow >= 0 ? '+' : ''}{data.fiiFlow.toLocaleString('en-IN')} Cr
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400">Domestic Funds (DII)</span>
+                    <span className={`font-bold px-2 py-0.5 rounded ${
+                      data.diiFlow >= 0 
+                        ? 'text-emerald-400 bg-emerald-500/10' 
+                        : 'text-rose-400 bg-rose-500/10'
+                    }`}>
+                      {data.diiFlow >= 0 ? '+' : ''}{data.diiFlow.toLocaleString('en-IN')} Cr
+                    </span>
+                  </div>
+                </div>
+              </div>
+              
+              <p className="text-[11px] text-slate-450 leading-relaxed font-sans italic border-t border-slate-900/60 pt-2">
+                {isSimple
+                  ? "Foreign investors represent global capital entering or exiting our shares. Domestic funds are Indian mutual funds. When foreign funds sell, domestic funds often step in to support prices."
+                  : "Tracks net buying/selling value in cash segment. FII activity mirrors global risk appetite for emerging markets, while DII represents domestic liquidity cushioning."}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Bullet Points / Global Trends */}
       <div className="space-y-4">
-        {data.bullets.map((bullet, index) => {
+        {data.bullets.map((bullet: any, index: number) => {
           const isExpanded = !!expandedBullets[index];
           return (
             <div 
@@ -177,7 +303,7 @@ export default function MorningNote({ data, loading }: MorningNoteProps) {
                       </span>
                       
                       <div className="space-y-3">
-                        {bullet.companiesAffected.map((company, cIndex) => {
+                        {bullet.companiesAffected.map((company: any, cIndex: number) => {
                           const effectBadge = company.effect === 'POSITIVE'
                             ? { label: 'Positive Impact', colors: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' }
                             : company.effect === 'NEGATIVE'

@@ -1,20 +1,45 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import DashboardHeader from '@/components/dashboard-header';
 import DashboardFooter from '@/components/dashboard-footer';
 import PredictionCard from '@/components/prediction-card';
-import { historicalPredictions, getAccuracySummary } from '@/lib/historyData';
 import { History, CheckCircle2, AlertCircle, XCircle, BarChart3, Info } from 'lucide-react';
 import Link from 'next/link';
 
 export default function HistoryPage() {
-  const summary = getAccuracySummary(historicalPredictions);
+  const [historyData, setHistoryData] = useState<any[] | null>(null);
+  const [summary, setSummary] = useState<any | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
 
-  // Sort newest first
-  const sorted = [...historicalPredictions].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-  );
+  useEffect(() => {
+    const loadHistory = async () => {
+      try {
+        const res = await fetch('/api/predictions-history');
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success) {
+            setHistoryData(json.data);
+            setSummary(json.summary);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load predictions history:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadHistory();
+  }, []);
+
+  const sorted = historyData
+    ? [...historyData].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    : [];
+
+  const pct = summary ? `${summary.pct}%` : '—%';
+  const correct = summary ? summary.correct : 0;
+  const partial = summary ? summary.partial : 0;
+  const missed = summary ? summary.missed : 0;
 
   return (
     <div className="flex flex-col min-h-screen bg-[#09090b] text-slate-100">
@@ -26,11 +51,11 @@ export default function HistoryPage() {
         <div className="space-y-4">
           <Link
             href="/"
-            className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-300 font-mono transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-350 font-mono transition-colors"
           >
             ← Back to Dashboard
           </Link>
-
+          
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div className="space-y-2">
               <div className="flex items-center gap-2.5">
@@ -50,7 +75,7 @@ export default function HistoryPage() {
             <div className="shrink-0 flex items-center gap-3 px-5 py-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20">
               <BarChart3 className="h-5 w-5 text-emerald-400" />
               <div>
-                <span className="text-2xl font-extrabold font-mono text-emerald-400">{summary.pct}%</span>
+                <span className="text-2xl font-extrabold font-mono text-emerald-400">{pct}</span>
                 <span className="text-xs text-emerald-600 block -mt-0.5 font-mono">Enhanced Model Accuracy</span>
               </div>
             </div>
@@ -68,21 +93,21 @@ export default function HistoryPage() {
           <div className="flex items-center gap-3 p-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5">
             <CheckCircle2 className="h-8 w-8 text-emerald-400 shrink-0" />
             <div>
-              <span className="text-3xl font-extrabold font-mono text-emerald-400">{summary.correct}</span>
+              <span className="text-3xl font-extrabold font-mono text-emerald-400">{correct}</span>
               <span className="text-xs text-slate-400 block font-mono uppercase tracking-wide mt-0.5">Correct Predictions</span>
             </div>
           </div>
           <div className="flex items-center gap-3 p-4 rounded-xl border border-amber-500/20 bg-amber-500/5">
             <AlertCircle className="h-8 w-8 text-amber-400 shrink-0" />
             <div>
-              <span className="text-3xl font-extrabold font-mono text-amber-400">{summary.partial}</span>
+              <span className="text-3xl font-extrabold font-mono text-amber-400">{partial}</span>
               <span className="text-xs text-slate-400 block font-mono uppercase tracking-wide mt-0.5">Partially Correct</span>
             </div>
           </div>
           <div className="flex items-center gap-3 p-4 rounded-xl border border-rose-500/20 bg-rose-500/5">
             <XCircle className="h-8 w-8 text-rose-400 shrink-0" />
             <div>
-              <span className="text-3xl font-extrabold font-mono text-rose-400">{summary.missed}</span>
+              <span className="text-3xl font-extrabold font-mono text-rose-400">{missed}</span>
               <span className="text-xs text-slate-400 block font-mono uppercase tracking-wide mt-0.5">Missed Predictions</span>
             </div>
           </div>
@@ -97,11 +122,22 @@ export default function HistoryPage() {
         </div>
 
         {/* ── Prediction Cards ─────────────────────────────────── */}
-        <div className="space-y-5">
-          {sorted.map((record, i) => (
-            <PredictionCard key={record.id} record={record} index={i} />
-          ))}
-        </div>
+        {loading ? (
+          <div className="flex justify-center items-center py-20 text-slate-500 font-mono">
+            <span className="h-4 w-4 rounded-full border-2 border-slate-700 border-t-violet-400 animate-spin mr-2" />
+            Loading persistent historical records...
+          </div>
+        ) : sorted.length === 0 ? (
+          <div className="text-center py-20 text-slate-500 border border-dashed border-slate-900 rounded-2xl">
+            No historical records found in the database.
+          </div>
+        ) : (
+          <div className="space-y-5">
+            {sorted.map((record, i) => (
+              <PredictionCard key={record.id} record={record} index={i} />
+            ))}
+          </div>
+        )}
 
       </main>
 
