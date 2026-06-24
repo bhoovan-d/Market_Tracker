@@ -63,10 +63,44 @@ export async function POST(request: Request) {
       }, { status: 401 });
     }
 
+    const target = getTargetTradingDate();
+
+    // 1. Lock prediction: if the database already contains a prediction for target.dateStr, return it directly.
+    // This prevents hindsight bias by ensuring once a prediction is made, it can never be regenerated.
+    const db = readDb();
+    if (db[target.dateStr]) {
+      const existingPred = db[target.dateStr];
+      const parsedResult = {
+        sentiment: existingPred.sentiment,
+        gaugeValue: existingPred.gaugeValue,
+        predictedOpeningDiff: existingPred.predictedOpeningDiff,
+        confidenceScore: existingPred.confidenceScore,
+        confidenceNote: existingPred.confidenceNote,
+        bullets: existingPred.bullets,
+        sectors: existingPred.sectors,
+        suggestedAction: existingPred.suggestedAction,
+        dateStr: existingPred.date,
+        dayLabel: existingPred.dayLabel,
+        lastUpdated: `Today, 08:30 AM IST (Locked)`,
+        pivots: existingPred.pivots,
+        pcr: existingPred.pcr,
+        pcrLabel: existingPred.pcrLabel,
+        fiiFlow: existingPred.fiiFlow,
+        diiFlow: existingPred.diiFlow
+      };
+
+      noteCache = { data: parsedResult, timestamp: Date.now() };
+
+      return NextResponse.json({
+        success: true,
+        data: parsedResult,
+        provider: 'locked-db-prediction',
+        timestamp: new Date().toISOString()
+      });
+    }
+
     // Protect API from spam force refreshes by enforcing a cooldown
     const isForceOnCooldown = forceRefresh && (Date.now() - lastLiveGenerationTime < FORCE_COOLDOWN_MS);
-
-    const target = getTargetTradingDate();
 
     // Return cached note if still valid and not force-refreshed, or if force-refresh is on cooldown
     if (isCacheValid(target.dateStr) && (!forceRefresh || isForceOnCooldown)) {
@@ -279,21 +313,75 @@ Rules:
     // Ensure cache is primed from disk if this is the first request and it errored
     primeCache();
 
-    // Return the last successfully generated note (cached in memory or loaded from file)
+    const targetInfo = getTargetTradingDate();
+    let fallbackData: any = null;
+    let provider = 'fallback-mock-static-error';
+
     if (noteCache?.data) {
-      return NextResponse.json({
-        success: true,
-        data: noteCache.data,
-        provider: 'gemini-flash-stale-cache',
-        timestamp: new Date().toISOString()
-      });
+      fallbackData = { ...noteCache.data };
+      provider = 'gemini-flash-stale-cache';
+    } else {
+      fallbackData = { ...mockSentimentData };
     }
 
-    // Absolute fallback to mock data only if no previous generation exists on disk
+    // Enrich fallback data with correct target date properties
+    fallbackData.dateStr = targetInfo.dateStr;
+    fallbackData.dayLabel = targetInfo.label;
+    fallbackData.lastUpdated = `Today, 08:30 AM IST (Fallback)`;
+
+    // Fill in required fields if missing
+    if (!fallbackData.pivots) {
+      fallbackData.pivots = calculatePivots(24168.05, 24073.15, 24013.10);
+    }
+    if (fallbackData.pcr === undefined) {
+      fallbackData.pcr = 0.95;
+      fallbackData.pcrLabel = 'Neutral';
+      fallbackData.fiiFlow = -200;
+      fallbackData.diiFlow = 300;
+    }
+
+    // Persist enriched fallback to local predictions database
+    try {
+      const db = readDb();
+      if (!db[targetInfo.dateStr]) {
+        db[targetInfo.dateStr] = {
+          date: targetInfo.dateStr,
+          dayLabel: targetInfo.label,
+          predictionForDate: targetInfo.label,
+          sentiment: fallbackData.sentiment,
+          gaugeValue: fallbackData.gaugeValue,
+          predictedOpeningDiff: fallbackData.predictedOpeningDiff,
+          confidenceScore: fallbackData.confidenceScore || 5,
+          confidenceNote: fallbackData.confidenceNote || 'Pre-market fallback loaded.',
+          bullets: fallbackData.bullets,
+          sectors: fallbackData.sectors,
+          suggestedAction: fallbackData.suggestedAction,
+          actual: null,
+          accuracy: 'PENDING',
+          pivots: fallbackData.pivots,
+          pcr: fallbackData.pcr,
+          pcrLabel: fallbackData.pcrLabel,
+          fiiFlow: fallbackData.fiiFlow,
+          diiFlow: fallbackData.diiFlow
+        };
+        writeDb(db);
+      }
+    } catch (dbErr) {
+      console.error("Failed to write fallback to predictions database:", dbErr);
+    }
+
+    // Update in-memory cache and last-sentiment.json file on disk
+    noteCache = { data: fallbackData, timestamp: Date.now() };
+    try {
+      fs.writeFileSync(PERSISTENT_FILE_PATH, JSON.stringify(fallbackData, null, 2), 'utf-8');
+    } catch (fsErr) {
+      console.error("Failed to save fallback note to file:", fsErr);
+    }
+
     return NextResponse.json({
       success: true,
-      data: mockSentimentData,
-      provider: 'fallback-mock-static-error',
+      data: fallbackData,
+      provider,
       error: error.message || 'Gemini API limit exceeded',
       timestamp: new Date().toISOString()
     });

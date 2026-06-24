@@ -1,81 +1,55 @@
 {
-  "sentiment": "GAP_UP",
-  "gaugeValue": 65,
-  "predictedOpeningDiff": "+85 pts (Gap Up)",
+  "sentiment": "GAP_DOWN",
+  "gaugeValue": 35,
+  "predictedOpeningDiff": "-45 to -65 pts (Gap Down)",
   "confidenceScore": 7,
-  "confidenceNote": "A very calm India VIX and crashing crude prices support the bulls, but a rising US dollar index will keep runaway gains in check.",
+  "confidenceNote": "Overnight slide in US indexes and weak Asian morning markets indicate a negative opening.",
   "bullets": [
     {
-      "title": "GIFT Nifty Signals Positive Start",
-      "globalTrend": "GIFT Nifty is indicating a positive start (+0.37%), defying minor overnight cuts in the S&P 500 and Nasdaq. Low domestic volatility (India VIX at 12.84) provides a stable backdrop for bulls.",
-      "globalTrendSimple": "Think of this like starting a cricket match with 15 runs already on the scoreboard before the first ball is bowled. Even though the US markets had a slightly gloomy night, our local indicators show Indian markets are waking up feeling fresh and energetic.",
-      "indianImpact": "Expect a gap-up opening of 70-90 points on Nifty 50, supported by local risk-on sentiment and short-covering.",
-      "indianImpactSimple": "The Indian stock market is likely to open with a pleasant jump, bringing an immediate green smile to your portfolio this morning.",
+      "title": "US Tech Selloff Overnight",
+      "globalTrend": "Nasdaq 100 fell 1.65% overnight as investors booked profits in high-flying chipmaker stocks.",
+      "globalTrendSimple": "American technology companies faced a selling wave last night, dropping by 1.65%.",
+      "indianImpact": "Heavy selling pressure expected on local IT exporters and hardware manufacturers.",
+      "indianImpactSimple": "Local technology stocks are likely to see early price cuts as foreign selling dominates.",
       "companiesAffected": [
         {
-          "symbol": "RELIANCE",
-          "name": "Reliance Industries Limited",
-          "effect": "POSITIVE",
-          "reason": "As a heavy-weight proxy for the Indian economy, a calm market volatility environment and a gap-up opening usually attract early buying in Reliance.",
-          "actionableGuidance": "Hold current positions; fresh long entries can be considered if the stock sustains above its opening 15-minute high."
-        }
-      ]
-    },
-    {
-      "title": "Crude Oil Crash Boosts Corporate Margins",
-      "globalTrend": "Brent Crude plunged 2.69% to $77.70, offering relief to India's fiscal deficit and margin expansion for crude-dependent sectors. This offsets the headwinds of a stronger US Dollar.",
-      "globalTrendSimple": "Petrol and raw oil prices internationally have taken a big fall. This is like a household finding out their monthly cooking gas and transport bills have suddenly dropped, leaving more cash in the pocket to save or spend elsewhere.",
-      "indianImpact": "Margin tailwinds for Paint, Tyre, and Oil Marketing Companies (OMCs) due to lower input costs, likely triggering an outperformance in these pockets.",
-      "indianImpactSimple": "Companies that use a lot of oil to make their products—like paint makers and tyre companies—will save a lot of money on raw materials, making them highly attractive to buyers today.",
-      "companiesAffected": [
-        {
-          "symbol": "ASIANPAINT",
-          "name": "Asian Paints Limited",
-          "effect": "POSITIVE",
-          "reason": "Crude oil derivatives form a major chunk of raw material costs for paint companies; a 2.6% drop in crude directly boosts their operating margins.",
-          "actionableGuidance": "An excellent opportunity to accumulate on minor dips, as lower raw material costs will reflect positively in the upcoming quarterly earnings."
-        }
-      ]
-    },
-    {
-      "title": "Stronger Dollar and Yields Threaten FII Inflows",
-      "globalTrend": "The US Dollar Index (DXY) climbed to 101.03 and the 10-year US Treasury yield surged to 4.511%, while the USD/INR pair hardened. This macro setup creates a headwind for foreign institutional investor (FII) inflows.",
-      "globalTrendSimple": "The US Dollar is flexing its muscles and interest rates in America are rising. This is like a foreign bank offering higher interest rates at home, making those foreign investors less eager to send their money to Indian shores.",
-      "indianImpact": "Foreign institutional sales may continue in interest-sensitive and heavy-weight sectors, capping the index's intra-day gains despite the positive opening.",
-      "indianImpactSimple": "Foreign big-money investors might hesitate to buy Indian shares today, which means even though we start high, we might not zoom up too fast during the day.",
-      "companiesAffected": [
-        {
-          "symbol": "TCS",
-          "name": "Tata Consultancy Services Limited",
+          "symbol": "INFY",
+          "name": "Infosys Ltd.",
           "effect": "NEGATIVE",
-          "reason": "A combination of Nasdaq's overnight slip and rising US yields indicates tighter IT spending budgets and short-term pressure on Indian tech exporters.",
-          "actionableGuidance": "Avoid chasing the stock at open; wait for consolidation as the IT sector might face some profit-booking today."
+          "reason": "Tech sector sentiment dampened by sharp decline in US NASDAQ index.",
+          "actionableGuidance": "Maintain a strict stop-loss and avoid buying dips immediately."
         }
       ]
     }
   ],
   "sectors": [
     {
-      "name": "PAINTS & ADHESIVES",
-      "sentiment": "BULLISH",
-      "reason": "Direct beneficiaries of the steep drop in Brent crude prices, which lowers raw material expenses."
-    },
-    {
-      "name": "INFORMATION TECHNOLOGY",
+      "name": "Information Technology",
       "sentiment": "BEARISH",
-      "reason": "Dragged down by a weak NASDAQ closing and rising US 10-year Treasury yields."
-    },
-    {
-      "name": "OIL MARKETING (OMCs)",
-      "sentiment": "BULLISH",
-      "reason": "Cheaper crude oil imports improve marketing margins on petrol and diesel."
+      "reason": "Nasdaq tech sell-off overnight."
     }
   ],
   "suggestedAction": {
-    "strategy": "Plan for a bullish opening but avoid aggressive buying at the open due to rising US yields and a strong DXY. Focus on stock-specific plays in crude-sensitive sectors (paints, adhesives, tyres) while keeping stop-losses tight around opening lows.",
-    "strategySimple": "Enjoy the green start but don't rush to buy everything in a hurry. Treat today like a sunny morning with a prediction of light afternoon showers—keep your umbrella (stop-loss) ready and focus on companies that profit from cheaper oil.",
-    "sectorFocus": "Paints, Tyres, Lubricants, and Select Auto Stocks. Avoid high-multiple IT stocks.",
-    "riskWarning": "High US bond yields (4.511%) can trigger sudden FII selling in late sessions, capping upside.",
-    "riskWarningSimple": "If foreign investors start pulling out money in the afternoon because US bank rates look more attractive, the morning jump could fade. Don't invest money you might need in a hurry."
-  }
+    "strategy": "Nifty expected to open down. Look to buy quality defensive shares only near deep support zones.",
+    "strategySimple": "Expect a lower start today. Avoid buying stocks immediately; let the selling pressure cool down.",
+    "sectorFocus": "Avoid IT and high-beta metal names. Focus on consumer stables.",
+    "riskWarning": "Heightened volatility due to heavy foreign institutional investor selling.",
+    "riskWarningSimple": "Big foreign investors might sell, causing prices to swing. Keep your stop losses active."
+  },
+  "dateStr": "2026-06-25",
+  "dayLabel": "Thursday, Jun 25",
+  "lastUpdated": "Today, 08:30 AM IST (Fallback)",
+  "pivots": {
+    "pivot": 24084.77,
+    "r1": 24096.38,
+    "r2": 24179.67,
+    "r3": 24191.28,
+    "s1": 24001.48,
+    "s2": 23989.87,
+    "s3": 23906.58
+  },
+  "pcr": 0.95,
+  "pcrLabel": "Neutral",
+  "fiiFlow": -200,
+  "diiFlow": 300
 }

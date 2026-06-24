@@ -68,25 +68,26 @@ export function writeDb(db: Record<string, DbPrediction>) {
  */
 export function getTargetTradingDate(): { dateStr: string; label: string; isMarketClosed: boolean; isWeekend: boolean } {
   const now = new Date();
-  // Adjust to IST timezone (UTC+5.5)
-  const istTime = new Date(now.getTime() + (5.5 * 60 - now.getTimezoneOffset()) * 60000);
+  // Adjust to IST timezone (UTC+5.5) correctly, independent of server timezone
+  const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+  const istTime = new Date(utc + 3600000 * 5.5);
+  
   const hours = istTime.getHours();
   const minutes = istTime.getMinutes();
   const day = istTime.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
 
   const timeInMinutes = hours * 60 + minutes;
-  const marketCloseTime = 15 * 60 + 30; // 3:30 PM (15:30)
+  const marketOpenTime = 9 * 60 + 15; // 9:15 AM (555 minutes)
+  const marketCloseTime = 15 * 60 + 30; // 3:30 PM (930 minutes)
   
   let targetDate = new Date(istTime);
-  let isMarketClosed = false;
   let isWeekend = day === 0 || day === 6;
+  const isMarketClosed = isWeekend || timeInMinutes < marketOpenTime || timeInMinutes >= marketCloseTime;
 
-  // If past 3:30 PM IST or it's a weekend, target the next trading day
-  if (timeInMinutes >= marketCloseTime || isWeekend) {
-    isMarketClosed = true;
-    
+  // Rollover to target the next trading day once the current day's market has opened (9:15 AM IST) or if it's the weekend
+  if (timeInMinutes >= marketOpenTime || isWeekend) {
     if (day === 5) {
-      // Friday evening -> target Monday
+      // Friday after 9:15 AM -> target Monday
       targetDate.setDate(istTime.getDate() + 3);
     } else if (day === 6) {
       // Saturday -> target Monday
@@ -95,7 +96,7 @@ export function getTargetTradingDate(): { dateStr: string; label: string; isMark
       // Sunday -> target Monday
       targetDate.setDate(istTime.getDate() + 1);
     } else {
-      // Mon-Thu evening -> target tomorrow
+      // Mon-Thu after 9:15 AM -> target tomorrow
       targetDate.setDate(istTime.getDate() + 1);
     }
   }
@@ -112,13 +113,6 @@ export function getTargetTradingDate(): { dateStr: string; label: string; isMark
     weekday: 'long',
     month: 'short',
     day: 'numeric'
-  });
-
-  const predFormatter = new Intl.DateTimeFormat('en-US', {
-    timeZone: 'Asia/Kolkata',
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric'
   });
 
   return {

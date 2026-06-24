@@ -124,23 +124,17 @@ export default function SentimentHero({ data, loading, actualResult }: Sentiment
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-violet-500"></span>
             </span>
-            {isResolved ? (
-              isSimple 
-                ? `Review: Forecast vs. Actual outcome for ${actualResult.dayLabel}` 
-                : `Session Performance Review (${actualResult.dayLabel})`
-            ) : (
-              isSimple 
-                ? "Nifty opening forecast (Market starts at 9:15 AM)" 
-                : "Predicted Nifty Opening (9:15 AM IST)"
-            )}
+            <span>
+              Target: Nifty 50 Index opening price at 9:15 AM IST on {isResolved ? actualResult.dayLabel : (data.dayLabel || 'Next Session')}
+            </span>
           </div>
 
           <div className="space-y-1">
             <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight">
-              {isSimple ? 'Market Mood: ' : 'Sentiment: '}<span className={config.colorClass}>{config.label}</span>
+              {isSimple ? 'Predicted Mood: ' : 'Predicted Sentiment: '}<span className={config.colorClass}>{config.label}</span>
             </h1>
             <p className="text-xl sm:text-2xl font-mono text-slate-300 font-medium">
-              {isSimple ? 'Expected Opening: ' : 'Expected Change: '}<span className={data.gaugeValue >= 50 ? 'text-emerald-400' : 'text-rose-400'}>{data.predictedOpeningDiff}</span>
+              Predicted Opening Gap: <span className={data.gaugeValue >= 50 ? 'text-emerald-400' : 'text-rose-400'}>{data.predictedOpeningDiff}</span>
             </p>
           </div>
 

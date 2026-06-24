@@ -17,6 +17,23 @@ function getISTDateString(timestampSeconds: number): string {
 }
 
 export async function GET() {
+  const now = new Date();
+  const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+  const istTime = new Date(utc + 3600000 * 5.5);
+  
+  const formatter = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Kolkata',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  });
+  const currentISTDateStr = formatter.format(istTime);
+
+  const hours = istTime.getHours();
+  const minutes = istTime.getMinutes();
+  const timeInMinutes = hours * 60 + minutes;
+  const marketOpenTime = 9 * 60 + 15; // 9:15 AM
+
   try {
     const db = readDb();
     
@@ -237,13 +254,24 @@ export async function GET() {
       writeDb(db);
     }
 
-    // Convert map to array
+    // Convert map to array and sort chronologically descending
     const sorted = Array.from(listMap.values()).sort(
       (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
     );
 
-    // Keep the latest last 5 days
-    const latest5Days = sorted.slice(0, 5);
+    // Only show past sessions, and show today's session only after the 9:15 AM opening bell
+    const visibleHistory = sorted.filter((record) => {
+      if (record.date > currentISTDateStr) {
+        return false; // Hide future predictions
+      }
+      if (record.date === currentISTDateStr) {
+        return timeInMinutes >= marketOpenTime; // Only display today's prediction once market opens
+      }
+      return true; // Show past days
+    });
+
+    // Keep the latest 5 days
+    const latest5Days = visibleHistory.slice(0, 5);
 
     // 5. Compute aggregate scorecard accuracy metrics on the final 5 days
     const completedDays = latest5Days.filter(p => p.accuracy !== 'PENDING');
@@ -312,7 +340,20 @@ export async function GET() {
           diiFlow: pred.diiFlow
         });
       });
-      fallbackData = list.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 5);
+      const sortedFallbacks = list.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      
+      // Filter list: exclude future dates, and only include today's prediction if we are past 9:15 AM IST
+      const visibleFallbacks = sortedFallbacks.filter((record) => {
+        if (record.date > currentISTDateStr) {
+          return false;
+        }
+        if (record.date === currentISTDateStr) {
+          return timeInMinutes >= marketOpenTime;
+        }
+        return true;
+      });
+      
+      fallbackData = visibleFallbacks.slice(0, 5);
       
       const completedDays = fallbackData.filter(p => p.accuracy !== 'PENDING');
       const correct = completedDays.filter(p => p.accuracy === 'CORRECT').length;

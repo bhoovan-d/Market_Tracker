@@ -8,7 +8,6 @@ import OvernightTracker from '@/components/overnight-tracker';
 import MarketGrid from '@/components/market-grid';
 import DashboardFooter from '@/components/dashboard-footer';
 import { Sparkles, RefreshCw } from 'lucide-react';
-import MacroCalendar from '@/components/macro-calendar';
 import AccuracyScorecard from '@/components/accuracy-scorecard';
 import MarketNews from '@/components/market-news';
 
@@ -20,7 +19,7 @@ export default function Home() {
   const [historySummary, setHistorySummary] = useState<any | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [refreshing, setRefreshing] = useState<boolean>(false);
-  const [activeTab, setActiveTab] = useState<string>('calendar');
+  const [activeTab, setActiveTab] = useState<string>('accuracy');
 
   const loadData = async (type: 'init' | 'poll' | 'force' = 'init') => {
     if (type === 'poll' || type === 'force') setRefreshing(true);
@@ -130,11 +129,8 @@ export default function Home() {
             if (!historyData || historyData.length === 0) return null;
             
             const now = new Date();
-            const istTime = new Date(now.getTime() + (5.5 * 60 - now.getTimezoneOffset()) * 60000);
-            const hours = istTime.getHours();
-            const minutes = istTime.getMinutes();
-            const timeInMinutes = hours * 60 + minutes;
-            const marketOpenTime = 9 * 60 + 15; // 9:15 AM
+            const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+            const istTime = new Date(utc + 3600000 * 5.5);
             
             const formatter = new Intl.DateTimeFormat('en-CA', {
               timeZone: 'Asia/Kolkata',
@@ -144,17 +140,11 @@ export default function Home() {
             });
             const todayStr = formatter.format(istTime);
 
-            // If past 9:15 AM IST, show today's active prediction vs. live outcome
-            if (timeInMinutes >= marketOpenTime) {
-              const todayRecord = historyData.find(item => item.date === todayStr);
-              if (todayRecord) return todayRecord;
-            }
+            // Try to find today's active prediction & actual outcome first
+            const todayRecord = historyData.find(item => item.date === todayStr);
+            if (todayRecord) return todayRecord;
             
-            // Otherwise, show the most recent completed trading session (yesterday's prediction vs. outcome)
-            const pastRecords = historyData.filter(item => item.date !== todayStr);
-            const resolvedRecord = pastRecords.find(item => item.accuracy !== 'PENDING');
-            if (resolvedRecord) return resolvedRecord;
-            
+            // Otherwise, fall back to the most recent record (which will be the last available trading day)
             return historyData[0];
           };
 
@@ -203,17 +193,6 @@ export default function Home() {
             <div className="pt-6 border-t border-slate-900 space-y-6">
               <div className="flex border-b border-slate-900 pb-px gap-1 overflow-x-auto shrink-0 font-mono scrollbar-none">
                 <button
-                  onClick={() => setActiveTab('calendar')}
-                  className={`px-4 py-2.5 text-sm font-bold tracking-wider uppercase border-b-2 transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
-                    activeTab === 'calendar'
-                      ? 'border-violet-500 text-violet-400 font-semibold'
-                      : 'border-transparent text-slate-500 hover:text-slate-350'
-                  }`}
-                >
-                  Macro Calendar
-                  <span className="text-xs px-1.5 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-400">6</span>
-                </button>
-                <button
                   onClick={() => setActiveTab('accuracy')}
                   className={`px-4 py-2.5 text-sm font-bold tracking-wider uppercase border-b-2 transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
                     activeTab === 'accuracy'
@@ -241,10 +220,6 @@ export default function Home() {
               </div>
 
               <div className="space-y-6">
-                {activeTab === 'calendar' && (
-                  <MacroCalendar />
-                )}
-
                 {activeTab === 'accuracy' && (
                   <AccuracyScorecard data={historyData} summary={historySummary} />
                 )}

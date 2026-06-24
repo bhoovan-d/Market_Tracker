@@ -115,7 +115,7 @@ export default function PredictionCard({ record, index }: PredictionCardProps) {
 
           <div className="min-w-0">
             <h3 className="text-lg font-extrabold text-slate-100 truncate">{record.dayLabel}</h3>
-            <p className="text-xs text-slate-500 font-mono mt-0.5">Prediction for {record.predictionForDate}</p>
+            <p className="text-xs text-slate-500 font-mono mt-0.5">Target: Nifty 50 Open at 9:15 AM IST</p>
           </div>
         </div>
 
@@ -178,7 +178,7 @@ export default function PredictionCard({ record, index }: PredictionCardProps) {
             <div className="rounded-xl border border-violet-500/15 bg-violet-950/10 p-4 space-y-3">
               <div className="flex items-center gap-1.5 text-xs font-bold text-violet-400 uppercase tracking-widest font-mono">
                 <Target className="h-3.5 w-3.5" />
-                AI Prediction (Pre-Open)
+                Nifty 50 Opening Prediction (9:15 AM IST)
               </div>
               <div className="space-y-2">
                 {/* Gauge bar */}

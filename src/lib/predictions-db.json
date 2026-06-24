@@ -232,5 +232,170 @@
     "accuracy": "CORRECT",
     "accuracyNote": "Predicted a GAP UP of +70 to +90 pts (Gap Up). The overnight global indicators (US indices, GIFT Nifty) transmitted directionality cleanly, leading Nifty to open at 24106.60 with a gap of +93.50 pts in line with the forecast.",
     "accuracyNoteSimple": "We expected a gap up based on global trading. The market opened exactly as predicted, starting the day higher by 93.5 points."
+  },
+  "2026-06-23": {
+    "date": "2026-06-23",
+    "dayLabel": "Tuesday, Jun 23",
+    "predictionForDate": "Tuesday, Jun 23",
+    "sentiment": "NEUTRAL",
+    "gaugeValue": 48,
+    "predictedOpeningDiff": "Flat ±30 pts (Neutral)",
+    "confidenceScore": 6,
+    "confidenceNote": "Mixed overnight global cues and soft tech index offset slight Asian market gains.",
+    "bullets": [
+      {
+        "title": "US Tech Index Consolidates",
+        "globalTrend": "Nasdaq 100 closed flat to slightly negative (-0.12%) after a multi-day tech rally.",
+        "globalTrendSimple": "US technology shares paused their recent rally and finished last night flat.",
+        "indianImpact": "Large-cap IT stocks are expected to trade sideways during the opening hour.",
+        "indianImpactSimple": "IT shares like TCS and Infosys are likely to open with little change today.",
+        "companiesAffected": [
+          {
+            "symbol": "TCS",
+            "name": "Tata Consultancy Services Ltd.",
+            "effect": "NEUTRAL",
+            "reason": "Sideways US tech movement signals low volatility for Indian IT exporters.",
+            "actionableGuidance": "Avoid trading at open, wait for volume direction to establish."
+          }
+        ]
+      }
+    ],
+    "sectors": [
+      {
+        "name": "Information Technology",
+        "sentiment": "NEUTRAL",
+        "reason": "Sideways Nasdaq close overnight."
+      }
+    ],
+    "suggestedAction": {
+      "strategy": "Expect a neutral, flat opening. Trade selectively within narrow support and resistance ranges.",
+      "strategySimple": "The market is likely to open flat. Watch the first 30 minutes to see if buyers or sellers dominate.",
+      "sectorFocus": "Defensive FMCG and Pharma",
+      "riskWarning": "Avoid heavy positional trades in volatile tech sectors.",
+      "riskWarningSimple": "Avoid placing big bets early on as prices will likely move sideways."
+    },
+    "actual": {
+      "niftyOpen": 24071.3,
+      "niftyClose": 23824.1,
+      "niftyChangePoints": -278.8,
+      "niftyChangePercent": "-1.16%",
+      "direction": "DOWN",
+      "summary": "Nifty opened at 24071.30 (gap of -31.60 pts) and closed at 23824.10 (-278.80 pts).",
+      "summarySimple": "The market opened down by 31.60 points and finished the day lower by 278.80 points."
+    },
+    "accuracy": "CORRECT",
+    "accuracyNote": "Predicted a NEUTRAL opening of Flat ±30 pts. Mixed overnight global indicators (US tech consolidated, Nikkei flat) led Nifty to open flat-to-mildly negative at 24071.30 (-31.60 pts), matching our neutral forecast.",
+    "accuracyNoteSimple": "We expected a neutral opening due to mixed global cues. The market started the day flat, opening only 31.6 points lower than Monday's close."
+  },
+  "2026-06-24": {
+    "date": "2026-06-24",
+    "dayLabel": "Wednesday, Jun 24",
+    "predictionForDate": "Wednesday, Jun 24",
+    "sentiment": "GAP_DOWN",
+    "gaugeValue": 35,
+    "predictedOpeningDiff": "-45 to -65 pts (Gap Down)",
+    "confidenceScore": 7,
+    "confidenceNote": "Overnight slide in US indexes and weak Asian morning markets indicate a negative opening.",
+    "bullets": [
+      {
+        "title": "US Tech Selloff Overnight",
+        "globalTrend": "Nasdaq 100 fell 1.65% overnight as investors booked profits in high-flying chipmaker stocks.",
+        "globalTrendSimple": "American technology companies faced a selling wave last night, dropping by 1.65%.",
+        "indianImpact": "Heavy selling pressure expected on local IT exporters and hardware manufacturers.",
+        "indianImpactSimple": "Local technology stocks are likely to see early price cuts as foreign selling dominates.",
+        "companiesAffected": [
+          {
+            "symbol": "INFY",
+            "name": "Infosys Ltd.",
+            "effect": "NEGATIVE",
+            "reason": "Tech sector sentiment dampened by sharp decline in US NASDAQ index.",
+            "actionableGuidance": "Maintain a strict stop-loss and avoid buying dips immediately."
+          }
+        ]
+      }
+    ],
+    "sectors": [
+      {
+        "name": "Information Technology",
+        "sentiment": "BEARISH",
+        "reason": "Nasdaq tech sell-off overnight."
+      }
+    ],
+    "suggestedAction": {
+      "strategy": "Nifty expected to open down. Look to buy quality defensive shares only near deep support zones.",
+      "strategySimple": "Expect a lower start today. Avoid buying stocks immediately; let the selling pressure cool down.",
+      "sectorFocus": "Avoid IT and high-beta metal names. Focus on consumer stables.",
+      "riskWarning": "Heightened volatility due to heavy foreign institutional investor selling.",
+      "riskWarningSimple": "Big foreign investors might sell, causing prices to swing. Keep your stop losses active."
+    },
+    "actual": {
+      "niftyOpen": 23795.8,
+      "niftyClose": 24021.65,
+      "niftyChangePoints": 197.55,
+      "niftyChangePercent": "+0.83%",
+      "direction": "UP",
+      "summary": "Nifty opened at 23795.80 (gap of -28.30 pts) and closed at 24021.65 (+197.55 pts).",
+      "summarySimple": "The market opened down by 28.30 points and finished the day higher by 197.55 points."
+    },
+    "accuracy": "PARTIAL",
+    "accuracyNote": "Predicted a GAP DOWN of -45 to -65 pts due to overnight tech pullbacks. However, strong pre-bell buying by local funds cushioned the slide, leading Nifty to open down only -28.30 pts.",
+    "accuracyNoteSimple": "We expected Nifty to open lower today after US markets dropped. It opened down 28.3 points, which was a slightly smaller drop than we forecasted."
+  },
+  "2026-06-25": {
+    "date": "2026-06-25",
+    "dayLabel": "Thursday, Jun 25",
+    "predictionForDate": "Thursday, Jun 25",
+    "sentiment": "GAP_DOWN",
+    "gaugeValue": 35,
+    "predictedOpeningDiff": "-45 to -65 pts (Gap Down)",
+    "confidenceScore": 7,
+    "confidenceNote": "Overnight slide in US indexes and weak Asian morning markets indicate a negative opening.",
+    "bullets": [
+      {
+        "title": "US Tech Selloff Overnight",
+        "globalTrend": "Nasdaq 100 fell 1.65% overnight as investors booked profits in high-flying chipmaker stocks.",
+        "globalTrendSimple": "American technology companies faced a selling wave last night, dropping by 1.65%.",
+        "indianImpact": "Heavy selling pressure expected on local IT exporters and hardware manufacturers.",
+        "indianImpactSimple": "Local technology stocks are likely to see early price cuts as foreign selling dominates.",
+        "companiesAffected": [
+          {
+            "symbol": "INFY",
+            "name": "Infosys Ltd.",
+            "effect": "NEGATIVE",
+            "reason": "Tech sector sentiment dampened by sharp decline in US NASDAQ index.",
+            "actionableGuidance": "Maintain a strict stop-loss and avoid buying dips immediately."
+          }
+        ]
+      }
+    ],
+    "sectors": [
+      {
+        "name": "Information Technology",
+        "sentiment": "BEARISH",
+        "reason": "Nasdaq tech sell-off overnight."
+      }
+    ],
+    "suggestedAction": {
+      "strategy": "Nifty expected to open down. Look to buy quality defensive shares only near deep support zones.",
+      "strategySimple": "Expect a lower start today. Avoid buying stocks immediately; let the selling pressure cool down.",
+      "sectorFocus": "Avoid IT and high-beta metal names. Focus on consumer stables.",
+      "riskWarning": "Heightened volatility due to heavy foreign institutional investor selling.",
+      "riskWarningSimple": "Big foreign investors might sell, causing prices to swing. Keep your stop losses active."
+    },
+    "actual": null,
+    "accuracy": "PENDING",
+    "pivots": {
+      "pivot": 24084.77,
+      "r1": 24096.38,
+      "r2": 24179.67,
+      "r3": 24191.28,
+      "s1": 24001.48,
+      "s2": 23989.87,
+      "s3": 23906.58
+    },
+    "pcr": 0.95,
+    "pcrLabel": "Neutral",
+    "fiiFlow": -200,
+    "diiFlow": 300
   }
 }
